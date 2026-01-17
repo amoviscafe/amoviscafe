@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gallery – Amovi's Cafe & Fast Food</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ================= RESET ================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+/* ================= BODY ================= */
+body{
+  background:#f5f7fb;
+  min-height:100vh;
+  transition:.3s;
+}
+body.dark{
+  background:#0f172a;
+  color:#e5e7eb;
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;
+  padding:18px 22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+header h2{
+  font-size:22px;
+  font-weight:700;
+}
+
+header button{
+  background:rgba(255,255,255,.2);
+  border:none;
+  padding:8px 16px;
+  border-radius:20px;
+  cursor:pointer;
+  color:#fff;
+  font-size:14px;
+}
+
+/* ================= GRID ================= */
+.grid{
+  padding:26px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:22px;
+}
+
+/* ================= CARD ================= */
+.card{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 14px 30px rgba(0,0,0,.18);
+  cursor:pointer;
+  transition:.3s;
+  position:relative;
+}
+.card:hover{
+  transform:translateY(-6px);
+}
+body.dark .card{
+  background:#1e293b;
+}
+
+/* MEDIA */
+.card img,
+.card video{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  display:block;
+}
+
+/* PLAY ICON */
+.play{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:48px;
+  color:white;
+  background:rgba(0,0,0,.25);
+}
+
+/* ================= EMPTY ================= */
+.empty{
+  text-align:center;
+  margin-top:100px;
+  color:#6b7280;
+  font-size:16px;
+}
+
+/* ================= MODAL ================= */
+#modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+
+#modalContent img,
+#modalContent video{
+  max-width:90vw;
+  max-height:90vh;
+  object-fit:contain;
+  border-radius:18px;
+}
+
+#close{
+  position:absolute;
+  top:18px;
+  right:26px;
+  font-size:36px;
+  color:white;
+  cursor:pointer;
+  font-weight:700;
+}
+
+/* ================= MOBILE ================= */
+@media(max-width:600px){
+  header h2{font-size:18px}
+  .grid{padding:16px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <h2>📸 Gallery – Amovi's Cafe</h2>
+  <button onclick="toggleDark()">🌙</button>
+</header>
+
+<!-- ================= GRID ================= -->
+<div id="grid" class="grid"></div>
+
+<div id="empty" class="empty" style="display:none">
+  No photos or videos uploaded yet 📷
+</div>
+
+<!-- ================= MODAL ================= -->
+<div id="modal" onclick="closeModal()">
+  <span id="close">×</span>
+  <div id="modalContent"></div>
+</div>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ================= FIREBASE INIT ================= */
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+const db = firebase.firestore();
+
+/* ================= DARK MODE ================= */
+function toggleDark(){
+  document.body.classList.toggle("dark");
+  localStorage.setItem(
+    "amovis_dark",
+    document.body.classList.contains("dark")
+  );
+}
+if(localStorage.getItem("amovis_dark")==="true"){
+  document.body.classList.add("dark");
+}
+
+/* ================= HELPERS ================= */
+function isVideo(url){
+  return url.match(/\.(mp4|webm|ogg)$/i);
+}
+
+/* ================= LOAD GALLERY ================= */
+const grid = document.getElementById("grid");
+const empty = document.getElementById("empty");
+
+db.collection("gallery")
+  .onSnapshot(snapshot=>{
+    grid.innerHTML="";
+
+    if(snapshot.empty){
+      empty.style.display="block";
+      return;
+    }
+
+    empty.style.display="none";
+
+    snapshot.forEach(doc=>{
+      const m = doc.data();
+      if(!m.url) return;
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      if(isVideo(m.url)){
+        card.innerHTML = `
+          <video src="${m.url}" muted></video>
+          <div class="play">▶</div>
+        `;
+        card.onclick = ()=>openModal("video",m.url);
+      }else{
+        card.innerHTML = `<img src="${m.url}">`;
+        card.onclick = ()=>openModal("image",m.url);
+      }
+
+      grid.appendChild(card);
+    });
+  },err=>{
+    console.error(err);
+    empty.style.display="block";
+    empty.innerText="Failed to load gallery 😕";
+  });
+
+/* ================= MODAL ================= */
+function openModal(type,url){
+  document.getElementById("modal").style.display="flex";
+  document.getElementById("modalContent").innerHTML =
+    type==="image"
+    ? `<img src="${url}">`
+    : `<video src="${url}" controls autoplay></video>`;
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+  document.getElementById("modalContent").innerHTML="";
+}
+</script>
+
+</body>
+</html>

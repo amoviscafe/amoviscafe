@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Booking Successful – Amovi's Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- ================= BILL DOWNLOAD ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+/* ================= GLOBAL ================= */
+*{
+  box-sizing:border-box;
+  font-family:Poppins,sans-serif
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(135deg,#ede9fe,#fce7f3);
+  padding-top:90px;
+}
+
+/* ================= HEADER ================= */
+header{
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:80px;
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#ec4899);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  z-index:1000;
+  box-shadow:0 10px 25px rgba(0,0,0,.25)
+}
+header h2{
+  margin:0;
+  font-size:22px;
+  font-weight:800;
+}
+
+/* ================= BILL CARD ================= */
+.card{
+  max-width:560px;
+  margin:auto;
+  background:#fff;
+  padding:30px;
+  border-radius:26px;
+  box-shadow:0 30px 70px rgba(0,0,0,.25);
+}
+
+/* ================= BILL HEADING ================= */
+.bill-heading{
+  text-align:center;
+  margin-bottom:16px;
+}
+.bill-heading h1{
+  margin:0;
+  font-size:26px;
+  font-weight:800;
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.bill-heading p{
+  margin:4px 0 0;
+  font-size:13px;
+  color:#6b7280;
+}
+
+/* ================= CHECK ICON ================= */
+.check{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:#22c55e;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:18px auto 14px;
+  color:#fff;
+  font-size:46px;
+}
+
+/* ================= TEXT ================= */
+h3{
+  text-align:center;
+  margin:10px 0 6px
+}
+p{
+  text-align:center;
+  color:#6b7280;
+  font-size:14px
+}
+
+/* ================= SECTIONS ================= */
+.section{
+  background:#f9fafb;
+  border-radius:18px;
+  padding:18px;
+  margin-top:18px;
+  font-size:14px
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px
+}
+
+hr{
+  border:none;
+  border-top:1px dashed #e5e7eb;
+  margin:12px 0
+}
+
+/* ================= FOOD ================= */
+.food-list{
+  padding-left:18px;
+  margin-top:6px;
+  font-size:13px
+}
+.food-list li{
+  margin-bottom:4px
+}
+
+/* ================= TOTAL ================= */
+.total{
+  font-size:18px;
+  font-weight:700;
+  color:#16a34a
+}
+
+/* ================= BUTTONS ================= */
+.btn{
+  width:100%;
+  margin-top:16px;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+  font-size:15px
+}
+.btn.alt{
+  background:linear-gradient(90deg,#16a34a,#22c55e)
+}
+.btn.gray{
+  background:#e5e7eb;
+  color:#111
+}
+
+/* ================= FOOT NOTE ================= */
+.small{
+  margin-top:12px;
+  font-size:12px;
+  color:#6b7280;
+  text-align:center
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Amovi's Cafe & Fast Food</h2>
+</header>
+
+<!-- ================= BILL AREA ================= -->
+<div class="card" id="billArea">
+
+  <div class="bill-heading">
+    <h1>Amovi’s Cafe & Fast Food</h1>
+    <p>Private Theatre • Celebrations • Memories</p>
+  </div>
+
+  <div class="check">✓</div>
+
+  <h3>Booking Confirmed!</h3>
+  <p>Your payment was successful 🎉</p>
+
+  <!-- ================= BOOKING INFO ================= -->
+  <div class="section">
+    <div class="row"><span>Name</span><b id="name">-</b></div>
+    <div class="row"><span>Mobile</span><b id="mobile">-</b></div>
+
+    <hr>
+
+    <div class="row"><span>Package</span><b id="pkg">-</b></div>
+    <div class="row"><span>Date</span><b id="date">-</b></div>
+    <div class="row"><span>Time Slot</span><b id="slot">-</b></div>
+    <div class="row"><span>Total People</span><b id="people">-</b></div>
+  </div>
+
+  <!-- ================= FOOD ================= -->
+  <div class="section">
+    <b>Food Items</b>
+    <ul id="foodItems" class="food-list"></ul>
+    <hr>
+    <div class="row">
+      <span>Food Total</span>
+      ₹<span id="foodTotal">0</span>
+    </div>
+  </div>
+
+  <!-- ================= PAYMENT ================= -->
+  <div class="section">
+    <div class="row"><span>Base Amount</span>₹<span id="base">0</span></div>
+    <div class="row"><span>Extra People</span><span id="extraPeople">0</span></div>
+    <div class="row"><span>Extra Amount</span>₹<span id="extraAmount">0</span></div>
+
+    <hr>
+
+    <div class="row total">
+      <span>Paid Amount</span>
+      ₹<span id="grand">0</span>
+    </div>
+
+    <div class="row">
+      <span>Payment ID</span>
+      <b id="payment">-</b>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= ACTIONS ================= -->
+<div style="max-width:560px;margin:auto;">
+  <button class="btn alt" onclick="downloadPDF()">📄 Download PDF Bill</button>
+  <button class="btn gray" onclick="downloadImage()">🖼️ Download Image Bill</button>
+  <button class="btn" onclick="goHome()">Go to Home</button>
+
+  <div class="small">
+    Please show this bill at the cafe if required ❤️
+  </div>
+</div>
+
+<script>
+/* ================= FIREBASE INIT ================= */
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+const db = firebase.firestore();
+
+/* ================= LOAD BOOKING ================= */
+db.collection("bookings")
+  .orderBy("createdAt","desc")
+  .limit(1)
+  .get()
+  .then(snap=>{
+    if(snap.empty) return;
+
+    const b = snap.docs[0].data();
+
+    /* ✅ SAFE FALLBACKS */
+    document.getElementById("name").innerText =
+      b.name || b.fullName || "Guest";
+
+    document.getElementById("mobile").innerText =
+      b.mobile || "-";
+
+    document.getElementById("pkg").innerText =
+      b.package || "-";
+
+    document.getElementById("date").innerText =
+      b.date || "-";
+
+    document.getElementById("slot").innerText =
+      b.timeSlot || "-";
+
+    document.getElementById("people").innerText =
+      b.people ?? "-";
+
+    document.getElementById("base").innerText =
+      b.baseAmount || 0;
+
+    document.getElementById("extraPeople").innerText =
+      b.extraPeople || 0;
+
+    document.getElementById("extraAmount").innerText =
+      b.extraAmount || 0;
+
+    document.getElementById("foodTotal").innerText =
+      b.foodTotal || 0;
+
+    document.getElementById("grand").innerText =
+      b.grandTotal || 0;
+
+    document.getElementById("payment").innerText =
+      b.paymentId || "-";
+
+    const ul = document.getElementById("foodItems");
+
+    if(b.foodItems && b.foodItems.length){
+      ul.innerHTML = b.foodItems.map(i =>
+        `<li>${i.name} × ${i.qty} = ₹${i.qty * i.price}</li>`
+      ).join("");
+    }else{
+      ul.innerHTML = "<li>No food ordered</li>";
+    }
+  });
+
+/* ================= IMAGE DOWNLOAD ================= */
+async function downloadImage(){
+  const canvas = await html2canvas(billArea,{scale:2});
+  const a = document.createElement("a");
+  a.download = "Amovis_Cafe_Bill.png";
+  a.href = canvas.toDataURL("image/png");
+  a.click();
+}
+
+/* ================= PDF DOWNLOAD (MULTI PAGE) ================= */
+async function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const canvas = await html2canvas(billArea,{scale:2});
+  const img = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p","mm","a4");
+  const pageW = 210;
+  const pageH = 297;
+
+  const imgW = pageW;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  let heightLeft = imgH;
+  let position = 0;
+
+  pdf.addImage(img,"PNG",0,position,imgW,imgH);
+  heightLeft -= pageH;
+
+  while(heightLeft > 0){
+    position = heightLeft - imgH;
+    pdf.addPage();
+    pdf.addImage(img,"PNG",0,position,imgW,imgH);
+    heightLeft -= pageH;
+  }
+
+  pdf.save("Amovis_Cafe_Bill.pdf");
+}
+
+/* ================= HOME ================= */
+function goHome(){
+  window.location.href="index.html";
+}
+</script>
+
+</body>
+</html>

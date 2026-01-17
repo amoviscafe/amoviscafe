@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amovi's Cafe & Fast Food</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ================= GOOGLE FONTS ================= -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ================= FONT AWESOME (EMOJIS + ICONS) ================= -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+/* =========================================================
+   RESET & BASE
+========================================================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:linear-gradient(135deg,#f5f3ff,#fdf2f8);
+  padding-top:90px;
+  overflow-x:hidden;
+  color:#111;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+header{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#db2777);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 18px;
+  z-index:1000;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+header img{
+  height:54px;
+  background:#fff;
+  padding:6px;
+  border-radius:50%;
+}
+
+.brand{
+  font-size:20px;
+  font-weight:800;
+  background:linear-gradient(90deg,#fde68a,#ffffff,#fbcfe8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.brand span{
+  display:block;
+  font-size:12px;
+  -webkit-text-fill-color:#fdf2f8;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.header-badge{
+  background:rgba(255,255,255,.18);
+  padding:8px 14px;
+  border-radius:20px;
+  color:#fff;
+  font-size:12px;
+}
+
+.header-right a i{
+  font-size:20px;
+  padding:8px;
+  border-radius:50%;
+  color:#fff;
+}
+
+/* =========================================================
+   HERO VIDEO SECTION
+========================================================= */
+.video-section{
+  max-width:1100px;
+  margin:24px auto;
+  text-align:center;
+  padding:0 14px;
+}
+
+.video-box{
+  height:380px;
+  background:#000;
+  border-radius:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+  box-shadow:0 25px 70px rgba(0,0,0,.6);
+}
+
+.video-box i{
+  font-size:64px;
+  position:absolute;
+  z-index:2;
+  opacity:.9;
+}
+
+.video-box video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.gallery-btn{
+  margin-top:18px;
+  padding:14px 26px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(90deg,#6d28d9,#db2777);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+
+/* =========================================================
+   COMMON CONTAINER
+========================================================= */
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:16px;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:6px;
+}
+
+.sub{
+  text-align:center;
+  color:#374151;
+  margin-bottom:24px;
+}
+
+/* =========================================================
+   INFO SECTIONS
+========================================================= */
+.info{
+  margin:30px auto;
+  padding:26px;
+  border-radius:26px;
+  color:#fff;
+}
+
+.why{
+  background:linear-gradient(135deg,#7c3aed,#9333ea,#ec4899);
+}
+
+.about{
+  background:linear-gradient(135deg,#0f766e,#14b8a6,#22c55e);
+}
+
+.info h3{
+  margin-bottom:12px;
+}
+
+.info ul{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
+}
+
+.info ul li::before{
+  content:"✔ ";
+  color:#fde047;
+}
+
+/* =========================================================
+   PACKAGES
+========================================================= */
+.packages{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:22px;
+}
+
+.package{
+  border-radius:24px;
+  padding:24px;
+  color:#fff;
+  cursor:pointer;
+  border:4px solid transparent;
+  box-shadow:0 20px 45px rgba(0,0,0,.25);
+  transition:.3s;
+}
+
+.package:hover{
+  transform:translateY(-6px);
+}
+
+.package.selected{
+  border-color:#fff;
+}
+
+.basic{
+  background:linear-gradient(135deg,#4f46e5,#6366f1);
+}
+
+.standard{
+  background:linear-gradient(135deg,#9333ea,#c084fc);
+}
+
+.premium{
+  background:linear-gradient(135deg,#f59e0b,#fbbf24);
+}
+
+.price{
+  font-size:28px;
+  font-weight:700;
+  margin:10px 0;
+}
+
+.package ul{
+  list-style:none;
+  font-size:14px;
+}
+
+.package ul li{
+  margin-bottom:6px;
+}
+
+/* =========================================================
+   CALCULATOR
+========================================================= */
+.box{
+  background:#fff;
+  border-radius:20px;
+  padding:22px;
+  margin:26px auto;
+  max-width:520px;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+.btn{
+  margin-top:16px;
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#db2777);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* =========================================================
+   REVIEWS
+========================================================= */
+.review-form{
+  max-width:520px;
+  margin:50px auto;
+  background:#fff;
+  padding:26px;
+  border-radius:22px;
+}
+
+.review-form h3{
+  text-align:center;
+}
+
+.review-form p{
+  text-align:center;
+  color:#6b7280;
+}
+
+.review-form input,
+.review-form textarea{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:14px;
+  border:2px solid #e5e7eb;
+}
+
+.stars{
+  text-align:center;
+  margin:10px 0;
+}
+
+.stars i{
+  font-size:26px;
+  color:#facc15;
+  opacity:.4;
+  cursor:pointer;
+}
+
+.stars i.active{
+  opacity:1;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+footer{
+  background:linear-gradient(135deg,#312e81,#4c1d95,#701a75);
+  color:#e5e7eb;
+  padding:36px 16px;
+}
+
+.footer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:26px;
+  max-width:1100px;
+  margin:auto;
+}
+
+.review-scroll{
+  max-height:200px;
+  overflow-y:auto;
+  padding-right:6px;
+}
+
+.review{
+  background:#fff;
+  color:#111;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+footer ul{
+  list-style:none;
+  font-size:14px;
+  line-height:1.8;
+}
+
+footer ul li::before{
+  content:"• ";
+  color:#f472b6;
+}
+
+footer p{
+  text-align:center;
+  margin-top:18px;
+  font-size:13px;
+}
+
+/* =========================================================
+   MOBILE RESPONSIVE
+========================================================= */
+@media(max-width:768px){
+  body{padding-top:78px}
+  .header-right .header-badge{display:none}
+  .brand{font-size:16px}
+  .brand span{font-size:11px}
+  .video-box{height:220px}
+  .video-box i{font-size:44px}
+  .footer-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     HEADER HTML
+========================================================= -->
+<header>
+  <div class="header-left">
+    <img src="assets/logo.png">
+    <div class="brand">
+      Amovi's Cafe & Fast Food
+      <span>Moments • Memories • Celebrations</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="header-badge">🎬 Private Theatre • 🎉 Celebrations</div>
+    <a href="https://www.instagram.com/amoviscafe/" target="_blank">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+    <a href="https://www.facebook.com/share/1bjXGC83gt/" target="_blank">
+      <i class="fa-brands fa-facebook-f"></i>
+    </a>
+  </div>
+</header>
+
+<!-- =========================================================
+     HERO VIDEO
+========================================================= -->
+<div class="video-section">
+  <div class="video-box" id="heroVideo">
+    <i class="fa-solid fa-play"></i>
+  </div>
+
+  <button class="gallery-btn" onclick="location.href='gallery.html'">
+    📸 See More Gallery →
+  </button>
+</div>
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+<div class="container">
+
+  <div class="info why">
+    <h3>🎯 Why Choose Amovi’s Cafe?</h3>
+    <ul>
+      <li>🎬 Private Theatre Experience</li>
+      <li>🎉 Perfect for Birthdays & Proposals</li>
+      <li>🧼 Peaceful & Hygienic Ambience</li>
+      <li>✨ Premium Decoration Setup</li>
+      <li>😊 Friendly Staff</li>
+      <li>❤️ Memorable Moments</li>
+    </ul>
+  </div>
+
+  <div class="info about">
+    <h3>📦 About Our Celebration Packages</h3>
+    <ul>
+      <li>🎬 2 Hours Private Theatre</li>
+      <li>🎈 Decoration as per Package</li>
+      <li>🍽️ Food Preorder Optional</li>
+      <li>👥 Extra People Allowed</li>
+      <li>💳 Full Payment Required</li>
+      <li>🥳 Perfect for Small Events</li>
+    </ul>
+  </div>
+
+  <h2>🎁 Select Your Package</h2>
+  <p class="sub">Choose the best plan for your celebration</p>
+
+  <div class="packages">
+    <div class="package basic selected" onclick="selectPkg('Basic',1699,this)">
+      <h3>💙 Basic</h3>
+      <div class="price">₹1699</div>
+      <ul>
+        <li>🎬 Private Theatre – 2 Hours</li>
+        <li>🎈 Simple Decoration</li>
+        <li>👥 Up to 4 People</li>
+        <li>➕ Extra Person ₹300</li>
+        <li>🍽️ Food Optional</li>
+      </ul>
+    </div>
+
+    <div class="package standard" onclick="selectPkg('Standard',2199,this)">
+      <h3>💜 Standard</h3>
+      <div class="price">₹2199</div>
+      <ul>
+        <li>🎬 Private Theatre – 2 Hours</li>
+        <li>🎉 Premium Decoration</li>
+        <li>💡 LED Lights</li>
+        <li>👥 Up to 4 People</li>
+        <li>➕ Extra Person ₹300</li>
+      </ul>
+    </div>
+
+    <div class="package premium" onclick="selectPkg('Premium',2699,this)">
+      <h3>💛 Premium</h3>
+      <div class="price">₹2699</div>
+      <ul>
+        <li>🎬 Private Theatre – 2 Hours</li>
+        <li>✨ Luxury Decoration</li>
+        <li>🌹 Rose Petals</li>
+        <li>📸 Photo / Reel Setup</li>
+        <li>👥 Up to 4 People</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <label>👥 Number of People</label>
+    <select id="people" onchange="updateTotal()">
+      <script>
+        for(let i=4;i<=20;i++){
+          document.write(`<option>${i}</option>`);
+        }
+      </script>
+    </select>
+  </div>
+
+  <div class="box">
+    <p>📦 Package: <b id="pkg">Basic</b></p>
+    <p>➕ Extra Charge: ₹<span id="extra">0</span></p>
+    <h3>💰 Total ₹<span id="total">1699</span></h3>
+    <button class="btn" onclick="goNext()">Proceed →</button>
+  </div>
+
+</div>
+
+<!-- =========================================================
+     REVIEW FORM
+========================================================= -->
+<div class="review-form">
+  <h3>⭐ After Your Experience</h3>
+  <p>Give Your Review</p>
+
+  <input id="rName" placeholder="Your Name">
+
+  <div class="stars">
+    <i data-v="1" class="fa-solid fa-star"></i>
+    <i data-v="2" class="fa-solid fa-star"></i>
+    <i data-v="3" class="fa-solid fa-star"></i>
+    <i data-v="4" class="fa-solid fa-star"></i>
+    <i data-v="5" class="fa-solid fa-star"></i>
+  </div>
+
+  <textarea id="rText" placeholder="Write your review..."></textarea>
+  <button class="btn" onclick="addReview()">Submit Review</button>
+</div>
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h3>💬 Customer Reviews</h3>
+      <div id="reviewList" class="review-scroll"></div>
+    </div>
+
+    <div>
+      <h3>📜 Terms & Conditions</h3>
+      <ul>
+        <li>Full payment mandatory</li>
+        <li>No refund after confirmation</li>
+        <li>Outside food not allowed</li>
+        <li>Smoking & alcohol prohibited</li>
+        <li>Late arrival reduces time</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>© 2026 Amovi's Cafe & Fast Food · Majalgaon</p>
+</footer>
+
+<!-- =========================================================
+     LOGIC SCRIPT
+========================================================= -->
+<script>
+let pkg="Basic", base=1699, rating=0;
+
+const peopleEl=document.getElementById("people");
+const pkgEl=document.getElementById("pkg");
+const extraEl=document.getElementById("extra");
+const totalEl=document.getElementById("total");
+
+function selectPkg(p,b,el){
+  pkg=p;
+  base=b;
+  document.querySelectorAll('.package').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  updateTotal();
+}
+
+function updateTotal(){
+  const people=parseInt(peopleEl.value);
+  const extra=Math.max(0,(people-4)*300);
+  pkgEl.innerText=pkg;
+  extraEl.innerText=extra;
+  totalEl.innerText=base+extra;
+}
+
+document.querySelectorAll(".stars i").forEach(s=>{
+  s.onclick=()=>{
+    rating=s.dataset.v;
+    document.querySelectorAll(".stars i")
+      .forEach(x=>x.classList.toggle("active",x.dataset.v<=rating));
+  };
+});
+
+function addReview(){
+  const name=rName.value.trim();
+  const text=rText.value.trim();
+  if(!name||!text||rating==0){
+    alert("Please fill all fields");
+    return;
+  }
+  const arr=JSON.parse(localStorage.getItem("amovis_reviews")||"[]");
+  arr.unshift({name,text,rating});
+  localStorage.setItem("amovis_reviews",JSON.stringify(arr));
+  rName.value="";
+  rText.value="";
+  rating=0;
+  document.querySelectorAll(".stars i").forEach(x=>x.classList.remove("active"));
+  loadReviews();
+}
+
+function loadReviews(){
+  reviewList.innerHTML="";
+  (JSON.parse(localStorage.getItem("amovis_reviews"))||[]).forEach(r=>{
+    reviewList.innerHTML+=
+      `<div class="review">
+        <b>${r.name}</b><br>
+        ${"⭐".repeat(r.rating)}<br>
+        ${r.text}
+      </div>`;
+  });
+}
+
+function goNext(){
+  const people=parseInt(peopleEl.value);
+  const extraPeople=Math.max(0,people-4);
+  const extraAmount=extraPeople*300;
+  const totalAmount=base+extraAmount;
+
+  localStorage.setItem("package",pkg);
+  localStorage.setItem("baseAmount",base);
+  localStorage.setItem("people",people);
+  localStorage.setItem("extraPeople",extraPeople);
+  localStorage.setItem("extraAmount",extraAmount);
+  localStorage.setItem("total",totalAmount);
+
+  window.location.href="food.html";
+}
+
+updateTotal();
+loadReviews();
+</script>
+
+<!-- =========================================================
+     FIREBASE (MAIN VIDEO)
+========================================================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+
+const db = firebase.firestore();
+const hero=document.getElementById("heroVideo");
+
+db.collection("settings").doc("main").onSnapshot(doc=>{
+  if(doc.exists){
+    const url = doc.data().url;
+    hero.innerHTML =
+      `<video id="heroVid" src="${url}" autoplay muted loop playsinline></video>`;
+    const v=document.getElementById("heroVid");
+    hero.onclick=()=>{
+      v.muted=false;
+      v.controls=true;
+      if(v.requestFullscreen) v.requestFullscreen();
+      v.play();
+    };
+  }
+});
+</script>
+
+</body>
+</html>

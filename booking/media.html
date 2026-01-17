@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Media – Amovi's Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{
+  margin:0;
+  background:#f3f4f6;
+  transition:.3s;
+}
+body.dark{
+  background:#0f172a;
+  color:#e5e7eb;
+}
+
+header{
+  background:linear-gradient(135deg,#7b2ff7,#f107a3);
+  color:#fff;
+  padding:20px 30px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.toggle{
+  background:rgba(255,255,255,.2);
+  border:none;
+  color:white;
+  padding:8px 14px;
+  border-radius:20px;
+  cursor:pointer;
+}
+
+.upload-box{
+  max-width:520px;
+  margin:35px auto;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  background:#fff;
+  box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+body.dark .upload-box{background:#020617}
+
+.file-input{margin:20px 0}
+.file-input input{display:none}
+.file-label{
+  display:block;
+  padding:14px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#7b2ff7,#f107a3);
+  color:white;
+  cursor:pointer;
+  font-weight:600;
+}
+.file-name{
+  margin-top:8px;
+  font-size:13px;
+  opacity:.7;
+}
+
+.upload-box button{
+  margin-top:18px;
+  padding:12px 26px;
+  border:none;
+  background:linear-gradient(135deg,#7b2ff7,#f107a3);
+  color:white;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:15px;
+}
+.upload-box button:disabled{opacity:.5}
+
+.gallery{
+  padding:30px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:22px;
+}
+
+.item{
+  position:relative;
+  background:black;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+.item img,.item video{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+}
+.delete{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#ef4444;
+  color:white;
+  border:none;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  font-size:20px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Admin Media Panel</h2>
+  <button class="toggle" onclick="toggleDark()">🌙</button>
+</header>
+
+<!-- MAIN VIDEO -->
+<div class="upload-box">
+  <h3>Main Cafe / Hall Video</h3>
+  <div class="file-input">
+    <label class="file-label" for="mainVideo">Choose Main Video</label>
+    <input type="file" id="mainVideo" accept="video/*" onchange="mainSelected()">
+    <div class="file-name" id="mainName">No video selected</div>
+  </div>
+  <button id="mainBtn" onclick="uploadMain()" disabled>Upload Main Video</button>
+</div>
+
+<!-- GALLERY -->
+<div class="upload-box">
+  <h3>Gallery Photo / Video</h3>
+  <div class="file-input">
+    <label class="file-label" for="file">Choose File</label>
+    <input type="file" id="file" accept="image/*,video/*" onchange="showName()">
+    <div class="file-name" id="fileName">No file selected</div>
+  </div>
+  <button onclick="uploadGallery()">Upload Media</button>
+</div>
+
+<div class="gallery" id="gallery"></div>
+
+<!-- 🔥 FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* DARK MODE */
+function toggleDark(){
+  document.body.classList.toggle("dark");
+}
+
+/* FIREBASE CONFIG */
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+const db = firebase.firestore();
+
+/* CLOUDINARY */
+const CLOUD_NAME="amoviscafe";
+const UPLOAD_PRESET="amovis_gallery";
+
+/* MAIN VIDEO */
+function mainSelected(){
+  mainName.innerText = mainVideo.files[0]?.name || "No video selected";
+  mainBtn.disabled = !mainVideo.files.length;
+}
+function uploadMain(){
+  const f=mainVideo.files[0];
+  const data=new FormData();
+  data.append("file",f);
+  data.append("upload_preset",UPLOAD_PRESET);
+
+  mainBtn.innerText="Uploading...";
+  fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`,{
+    method:"POST",body:data
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    db.collection("settings").doc("main").set({
+      url:res.secure_url,
+      updated:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("Main video updated");
+    mainBtn.innerText="Upload Main Video";
+    mainBtn.disabled=true;
+    mainVideo.value="";
+    mainName.innerText="No video selected";
+  });
+}
+
+/* GALLERY */
+function showName(){
+  fileName.innerText=file.files[0]?.name||"No file selected";
+}
+
+function uploadGallery(){
+  const f=file.files[0];
+  if(!f) return alert("Select file");
+
+  const data=new FormData();
+  data.append("file",f);
+  data.append("upload_preset",UPLOAD_PRESET);
+
+  fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,{
+    method:"POST",body:data
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    db.collection("gallery").add({
+      url:res.secure_url,
+      type:res.resource_type,
+      created:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    file.value="";
+    showName();
+  });
+}
+
+/* LOAD GALLERY */
+const gallery=document.getElementById("gallery");
+db.collection("gallery").orderBy("created","desc")
+.onSnapshot(snap=>{
+  gallery.innerHTML="";
+  snap.forEach(doc=>{
+    const m=doc.data();
+    gallery.innerHTML+=`
+      <div class="item">
+        ${m.type==="image"
+          ? `<img src="${m.url}">`
+          : `<video src="${m.url}" controls></video>`}
+        <button class="delete" onclick="del('${doc.id}')">×</button>
+      </div>`;
+  });
+});
+
+function del(id){
+  if(confirm("Delete media?")){
+    db.collection("gallery").doc(id).delete();
+  }
+}
+</script>
+
+</body>
+</html>

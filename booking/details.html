@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confirm Booking – Amovi's Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Razorpay -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+*{box-sizing:border-box;font-family:Poppins,sans-serif}
+body{
+  margin:0;
+  background:linear-gradient(135deg,#ede9fe,#fce7f3);
+  padding-top:90px;
+}
+header{
+  position:fixed;top:0;left:0;width:100%;height:80px;
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#ec4899);
+  display:flex;align-items:center;gap:14px;
+  padding:0 20px;color:#fff;z-index:1000;
+}
+header button{
+  background:rgba(255,255,255,.18);
+  border:none;color:#fff;
+  padding:10px 14px;border-radius:14px;
+  cursor:pointer;font-weight:600;
+}
+.card{
+  background:#fff;
+  max-width:540px;
+  margin:auto;
+  padding:26px;
+  border-radius:24px;
+  box-shadow:0 25px 60px rgba(0,0,0,.25)
+}
+input{
+  width:100%;padding:12px;
+  border-radius:14px;border:1.5px solid #d1d5db;
+  margin-bottom:12px
+}
+.summary{
+  background:#f9fafb;
+  padding:18px;
+  border-radius:18px;
+  font-size:14px
+}
+.row{
+  display:flex;justify-content:space-between;
+  margin-bottom:6px
+}
+hr{border:none;border-top:1px dashed #e5e7eb;margin:10px 0}
+.food-list{padding-left:18px;font-size:13px}
+.food-list li{margin-bottom:4px}
+.grand{
+  display:flex;justify-content:space-between;
+  font-size:18px;font-weight:700;color:#16a34a
+}
+.pay{
+  width:100%;
+  padding:14px;margin-top:18px;
+  border:none;border-radius:16px;
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;font-weight:700;
+  cursor:pointer
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <button onclick="history.back()">← Back</button>
+  <h3>Confirm Booking</h3>
+</header>
+
+<div class="card">
+
+<h3>Confirm Your Booking</h3>
+
+<input id="name" placeholder="Full Name">
+<input id="mobile" placeholder="10-digit Mobile Number" maxlength="10">
+
+<div class="summary">
+  <div class="row"><span>Package</span><b id="pkg"></b></div>
+  <div class="row"><span>Date</span><b id="date"></b></div>
+  <div class="row"><span>Time Slot</span><b id="slot"></b></div>
+
+  <hr>
+
+  <div class="row"><span>Base Amount</span>₹<span id="base"></span></div>
+  <div class="row"><span>Total People</span><span id="people"></span></div>
+  <div class="row"><span>Extra People</span><span id="extraPeople"></span></div>
+  <div class="row"><span>Extra Amount</span>₹<span id="extraAmt"></span></div>
+
+  <hr>
+
+  <b>Food Items</b>
+  <ul id="foodItems" class="food-list"></ul>
+  <div class="row"><span>Food Total</span>₹<span id="foodTotal"></span></div>
+
+  <hr>
+
+  <div class="grand">
+    <span>Grand Total</span>
+    ₹<span id="grand"></span>
+  </div>
+</div>
+
+<button class="pay" onclick="payNow()">Pay & Confirm</button>
+</div>
+
+<script>
+/* 🔥 FIREBASE INIT */
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+const db = firebase.firestore();
+
+/* 🔥 LOAD DATA */
+const pkg = localStorage.getItem("package") || "-";
+const date = localStorage.getItem("date") || "-";
+const slot = localStorage.getItem("timeSlot") || "-";
+const people = Number(localStorage.getItem("people")) || 0;
+const baseAmount = Number(localStorage.getItem("baseAmount")) || 0;
+const foodTotal = Number(localStorage.getItem("foodTotal")) || 0;
+const foodCart = JSON.parse(localStorage.getItem("foodCart") || "{}");
+
+const extraPeople = Math.max(0, people - 4);
+const extraAmount = extraPeople * 300;
+const grandTotal = baseAmount + extraAmount + foodTotal;
+
+/* SET UI */
+pkgEl = pkg;
+document.getElementById("pkg").innerText = pkg;
+document.getElementById("date").innerText = date;
+document.getElementById("slot").innerText = slot;
+document.getElementById("base").innerText = baseAmount;
+document.getElementById("people").innerText = people;
+document.getElementById("extraPeople").innerText = extraPeople;
+document.getElementById("extraAmt").innerText = extraAmount;
+document.getElementById("foodTotal").innerText = foodTotal;
+document.getElementById("grand").innerText = grandTotal;
+
+/* FOOD LIST */
+const ul = document.getElementById("foodItems");
+if(Object.keys(foodCart).length===0){
+  ul.innerHTML="<li>No food selected</li>";
+}else{
+  ul.innerHTML = Object.values(foodCart)
+    .map(i=>`<li>${i.name} × ${i.qty} = ₹${i.qty*i.price}</li>`)
+    .join("");
+}
+
+/* 🔥 PAYMENT */
+function payNow(){
+  const name = document.getElementById("name").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  if(!name || !/^[6-9]\d{9}$/.test(mobile)){
+    alert("Valid name & mobile required");
+    return;
+  }
+
+  const foodItems = Object.values(foodCart).map(i=>({
+    name:i.name, qty:i.qty, price:i.price
+  }));
+
+  const options = {
+    key:"rzp_test_S32E2vs8O30I11",
+    amount:grandTotal*100,
+    currency:"INR",
+    name:"Amovi's Cafe & Fast Food",
+    description:"Booking Payment",
+    handler:function(res){
+
+      db.collection("bookings").add({
+        name, mobile,
+        package: pkg,
+        date, timeSlot: slot,
+        people,
+        baseAmount,
+        extraPeople,
+        extraAmount,
+        foodItems,
+        foodTotal,
+        grandTotal,
+        paymentId: res.razorpay_payment_id,
+        status:"PAID",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(()=>{
+        localStorage.setItem("payment_id",res.razorpay_payment_id);
+        window.location.href="success.html";
+      });
+    },
+    prefill:{name,contact:mobile},
+    theme:{color:"#7c3aed"}
+  };
+
+  new Razorpay(options).open();
+}
+</script>
+
+</body>
+</html>

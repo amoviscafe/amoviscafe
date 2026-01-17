@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welcome – Amovi's Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ================= RESET ================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+/* ================= BODY ================= */
+body{
+  height:100vh;
+  background:#05050b;
+  overflow:hidden;
+  color:#fff;
+}
+
+/* ================= HEADER ================= */
+header{
+  width:100%;
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:20;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(14px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:
+    0 0 16px #a855f7,
+    0 0 32px #7c3aed;
+}
+
+.logo img{
+  width:70%;
+}
+
+.brand h1{
+  font-size:18px;
+  font-weight:800;
+}
+
+.skip{
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  padding:8px 18px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+/* ================= ADS CONTAINER ================= */
+.ads-container{
+  position:absolute;
+  top:86px;
+  left:0;
+  width:100%;
+  height:calc(100vh - 86px);
+  overflow:hidden;
+}
+
+.ads-track{
+  height:100%;
+  transition:transform 1.1s ease-in-out;
+}
+
+/* ================= PAGE ================= */
+.page{
+  height:100%;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  padding:16px;
+}
+
+/* ================= AD BOX ================= */
+.ad-box{
+  width:100%;
+  height:100%;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 24px 70px rgba(0,0,0,.85);
+  background:#000;
+}
+
+/* IMAGE */
+.ad-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  animation:zoom 12s linear forwards;
+}
+
+/* VIDEO */
+.ad-box video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ZOOM */
+@keyframes zoom{
+  from{transform:scale(1);}
+  to{transform:scale(1.1);}
+}
+
+/* ================= MOBILE FIX ================= */
+@media(max-width:900px){
+
+  header{
+    padding:12px 14px;
+  }
+
+  .brand h1{
+    font-size:16px;
+  }
+
+  .logo{
+    width:46px;
+    height:46px;
+  }
+
+  .ads-container{
+    top:78px;
+    height:calc(100vh - 78px);
+  }
+
+  /* 🔥 MOBILE: 2 ADS VERTICALLY */
+  .page{
+    grid-template-columns:1fr;
+    grid-template-rows:repeat(2,1fr);
+    gap:14px;
+    padding:14px;
+  }
+
+  .ad-box{
+    height:100%;
+  }
+
+  .ad-box img,
+  .ad-box video{
+    object-fit:contain; /* 🔥 NET LOOK */
+    background:#000;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">
+      <img src="booking/assets/logo.png">
+    </div>
+    <h1>Welcome to Amovi’s Cafe</h1>
+  </div>
+  <div class="skip" onclick="goHome()">Skip</div>
+</header>
+
+<div class="ads-container">
+  <div class="ads-track" id="adsTrack"></div>
+</div>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ================= FIREBASE CONFIG ================= */
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+
+const db = firebase.firestore();
+
+/* ================= LOGIC ================= */
+const track = document.getElementById("adsTrack");
+const isMobile = window.innerWidth < 900;
+
+/* 🔥 IMPORTANT FIX */
+const ADS_PER_PAGE = isMobile ? 2 : 2;
+
+let pages = [];
+let pageIndex = 0;
+
+/* ================= LOAD ADS ================= */
+db.collection("ads")
+  .orderBy("createdAt","asc")
+  .get()
+  .then(snapshot=>{
+    if(snapshot.empty){
+      autoHome(25000);
+      return;
+    }
+
+    const ads=[];
+    snapshot.forEach(doc=>ads.push(doc.data()));
+
+    for(let i=0;i<ads.length;i+=ADS_PER_PAGE){
+      pages.push(ads.slice(i,i+ADS_PER_PAGE));
+    }
+
+    pages.forEach(group=>{
+      const page=document.createElement("div");
+      page.className="page";
+
+      group.forEach(ad=>{
+        const box=document.createElement("div");
+        box.className="ad-box";
+
+        if(ad.type==="video"){
+          box.innerHTML=
+            `<video src="${ad.url}" autoplay muted loop playsinline></video>`;
+        }else{
+          box.innerHTML=`<img src="${ad.url}">`;
+        }
+
+        box.onclick=()=>{
+          const el=box.querySelector("video,img");
+          if(el.requestFullscreen) el.requestFullscreen();
+          if(el.tagName==="VIDEO"){
+            el.muted=false;
+            el.play();
+          }
+        };
+
+        page.appendChild(box);
+      });
+
+      track.appendChild(page);
+    });
+
+    startAutoScroll();
+  });
+
+/* ================= AUTO SCROLL ================= */
+function startAutoScroll(){
+  setInterval(()=>{
+    pageIndex++;
+    if(pageIndex>=pages.length){
+      goHome();
+      return;
+    }
+    track.style.transform=
+      `translateY(-${pageIndex*100}%)`;
+  },10000);
+}
+
+/* ================= NAV ================= */
+function autoHome(ms){
+  setTimeout(goHome,ms);
+}
+
+function goHome(){
+  location.href="home.html";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Food Preorder – Amovi's Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#f3f4ff;
+  padding-top:90px;
+  overflow-x:hidden;
+}
+
+/* ================= HEADER ================= */
+header{
+  position:fixed;
+  top:0;left:0;width:100%;
+  background:linear-gradient(90deg,#7c3aed,#9333ea,#ec4899);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  z-index:1000;
+}
+
+header .left{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+header img{height:48px}
+
+header h1{
+  color:#fff;
+  font-size:18px;
+  line-height:1.2;
+}
+
+header span{
+  font-size:12px;
+  color:#e5e7eb;
+}
+
+.skip{
+  background:#fff;
+  border:none;
+  padding:9px 14px;
+  border-radius:14px;
+  font-weight:600;
+  color:#7c3aed;
+  cursor:pointer;
+  font-size:13px;
+}
+
+/* ================= LAYOUT ================= */
+.container{
+  max-width:1400px;
+  margin:auto;
+  padding:16px;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:24px;
+}
+
+/* ================= MENU ================= */
+.menu{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:18px;
+}
+
+.menu-card{
+  background:#111827;
+  border-radius:22px;
+  padding:16px;
+  color:#fff;
+  box-shadow:0 20px 40px rgba(0,0,0,.35);
+}
+
+.menu-card h3{
+  text-align:center;
+  color:#fde68a;
+  margin-bottom:14px;
+  font-size:18px;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px dashed rgba(255,255,255,.25);
+}
+
+.item span{
+  font-size:14px;
+}
+
+.item button{
+  background:#ec4899;
+  border:none;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* ================= CART ================= */
+.cart{
+  background:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 20px 45px rgba(0,0,0,.25);
+  position:sticky;
+  top:110px;
+  max-height:calc(100vh - 140px);
+  display:flex;
+  flex-direction:column;
+}
+
+.cart h3{
+  text-align:center;
+  margin-bottom:12px;
+}
+
+#cartItems{
+  overflow-y:auto;
+  flex:1;
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid #e5e7eb;
+  font-size:14px;
+}
+
+.qty{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+
+.qty button{
+  width:22px;
+  height:22px;
+  border:none;
+  border-radius:50%;
+  background:#7c3aed;
+  color:#fff;
+  cursor:pointer;
+}
+
+.remove{
+  background:none;
+  border:none;
+  color:#dc2626;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.total{
+  text-align:center;
+  font-size:20px;
+  font-weight:700;
+  color:#16a34a;
+  margin:12px 0;
+}
+
+.main{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* ================= MOBILE ================= */
+@media(max-width:900px){
+  body{padding-bottom:240px}
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .menu{
+    grid-template-columns:1fr;
+  }
+
+  .cart{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    border-radius:22px 22px 0 0;
+    max-height:45vh;
+    z-index:999;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="left">
+    <img src="assets/logo.png">
+    <div>
+      <h1>Amovi's Cafe & Fast Food</h1>
+      <span>Food Preorder (Optional)</span>
+    </div>
+  </div>
+  <button class="skip" onclick="skipFood()">Skip Food →</button>
+</header>
+
+<div class="container">
+  <div class="layout">
+
+    <div class="menu" id="menu"></div>
+
+    <div class="cart">
+      <h3>Your Order</h3>
+      <div id="cartItems"></div>
+      <div class="total">₹<span id="total">0</span></div>
+      <button class="main" onclick="continueBooking()">Continue</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const MENU = {
+  "Coffee":[["Cold Coffee",50],["Cold Coffee with Crush",70],["Cold Coffee with Ice Cream",90],
+  ["Thick Cold Coffee",60],["Thick Cold Coffee with Crush",70],["Thick Cold Coffee with Ice Cream",90],
+  ["Kit Kat Coffee",70],["Kit Kat Coffee with Crush",90],["Kit Kat Coffee with Ice Cream",100],
+  ["Oreo Coffee",70],["Oreo Coffee with Crush",90],["Oreo Coffee with Ice Cream",100]],
+
+  "Veg Burger":[["Classic Burger",60],["Cheesy Burger",80],["Tandoori Burger",90],
+  ["Peri Peri Burger",90],["Paneer Burger",90],["Cheese Corn Burger",90],
+  ["Crunchy Burger",100],["Double Tikki Burger",120],["Special Burger",120],
+  ["Cabbage Cheese Burger",90]],
+
+  "Pizza":[["Classic Cheese (S)",120],["Classic Cheese (L)",150],["Peri Peri (S)",130],
+  ["Peri Peri (L)",170],["Paneer Tikka (S)",150],["Paneer Tikka (L)",180],
+  ["Special Pizza (S)",160],["Special Pizza (L)",210]],
+
+  "Veg Rice":[["Fried Rice",130],["Schezwan Rice",150],["Manchurian Rice",170],
+  ["Triple Rice",180],["Singapore Rice",200]],
+
+  "Noodles":[["Halka Noodles",130],["Schezwan Halka Noodles",150],
+  ["Manchurian Noodles",170],["Singapore Noodles",200],["Chaumin Noodles",180]],
+
+  "Panipuri":[["Pani Puri",30],["Shev Puri",40],["Dahi Shev Puri",50],
+  ["Dilli Chat Puri",60],["Sukhi Bhel",40],["Oli Bhel",50],
+  ["Kurkuri Namkin Bhel",80],["Chayni Bhel",120]],
+
+  "Snacks":[["Masala Papad",30],["Pop Corn",40],["Fruit Salad",80],
+  ["Manchav Soup",80],["Lasun Fry",100]],
+
+  "Pav Bhaji":[["Pav Bhaji",60],["Cheese Pav Bhaji",80]],
+
+  "Mocktails":[["Mojito",100],["Le Blue",100],["Cucumber Lime",100],
+  ["Lemon Ice Tea",100],["Water Melon",100],["Cocktail",100]],
+
+  "Hot":[["Tea",20],["Hot Coffee",30],["Hot Chocolate",40]],
+
+  "Ice Cream Cup":[["Vanilla",60],["Chocolate",60],["Strawberry",60],
+  ["Butterscotch",60],["Mango",70],["Pista",70],["American Nuts",70]],
+
+  "Shake":[["Vanilla",80],["Butterscotch",80],["Strawberry",80],["Pista",80],
+  ["Chocolate",80],["Oreo",80],["Kit Kat",80],["Mango",80],["Dry Fruit",90]]
+};
+
+let cart = JSON.parse(localStorage.getItem("foodCart")||"{}");
+
+function renderMenu(){
+  let html="";
+  for(const cat in MENU){
+    html+=`<div class="menu-card"><h3>${cat}</h3>`;
+    MENU[cat].forEach(i=>{
+      const k=cat+"||"+i[0];
+      html+=`
+      <div class="item">
+        <span>${i[0]} – ₹${i[1]}</span>
+        <button onclick="addItem('${k}',${i[1]})">+</button>
+      </div>`;
+    });
+    html+="</div>";
+  }
+  menu.innerHTML=html;
+}
+
+function addItem(k,p){
+  if(!cart[k]) cart[k]={name:k.split("||")[1],price:p,qty:0};
+  cart[k].qty++; save();
+}
+function changeQty(k,v){
+  cart[k].qty+=v; if(cart[k].qty<=0) delete cart[k]; save();
+}
+function removeItem(k){delete cart[k]; save();}
+function save(){
+  localStorage.setItem("foodCart",JSON.stringify(cart));
+  renderCart();
+}
+function renderCart(){
+  let html="",sum=0;
+  for(const k in cart){
+    const i=cart[k]; sum+=i.qty*i.price;
+    html+=`
+    <div class="cart-item">
+      <div><b>${i.name}</b> ₹${i.price} × ${i.qty}</div>
+      <div class="qty">
+        <button onclick="changeQty('${k}',-1)">-</button>
+        <span>${i.qty}</span>
+        <button onclick="changeQty('${k}',1)">+</button>
+        <button class="remove" onclick="removeItem('${k}')">❌</button>
+      </div>
+    </div>`;
+  }
+  cartItems.innerHTML=html||"<p style='text-align:center;color:#6b7280'>No food selected</p>";
+  total.innerText=sum;
+  localStorage.setItem("foodTotal",sum);
+}
+
+function skipFood(){
+  localStorage.setItem("foodTotal",0);
+  location.href="booking.html";
+}
+function continueBooking(){
+  location.href="booking.html";
+}
+
+renderMenu();
+renderCart();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manage Advertisements – Amovis Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#f5f3ff,#fdf2f8);
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#db2777);
+  padding:26px 20px;
+  text-align:center;
+  color:#fff;
+  box-shadow:0 12px 35px rgba(0,0,0,.35);
+}
+header h2{font-size:28px;font-weight:800}
+header p{font-size:13px;opacity:.9}
+
+/* BACK BUTTON */
+.back{
+  position:absolute;
+  left:20px;
+  top:24px;
+  background:#fff;
+  color:#6d28d9;
+  padding:8px 16px;
+  border-radius:20px;
+  font-weight:600;
+  text-decoration:none;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1100px;
+  margin:60px auto;
+  padding:20px;
+}
+
+/* UPLOAD BOX */
+.upload-box{
+  background:rgba(255,255,255,.6);
+  backdrop-filter:blur(14px);
+  border-radius:30px;
+  padding:34px;
+  box-shadow:0 25px 60px rgba(0,0,0,.25);
+  max-width:520px;
+  margin:0 auto 60px;
+  text-align:center;
+}
+
+.upload-box h3{font-size:22px}
+.upload-box p{font-size:13px;color:#4b5563}
+
+/* FILE INPUT */
+.file-input{margin:24px 0}
+.file-input input{display:none}
+
+.file-label{
+  display:block;
+  padding:15px;
+  border-radius:18px;
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.file-name{
+  margin-top:8px;
+  font-size:13px;
+  opacity:.7;
+}
+
+/* BUTTON */
+.upload-box button{
+  margin-top:20px;
+  padding:14px 36px;
+  border:none;
+  border-radius:24px;
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* ADS GRID */
+.ads-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:30px;
+}
+
+.ad-card{
+  position:relative;
+  background:#000;
+  border-radius:26px;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+
+.ad-card img,
+.ad-card video{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+}
+
+/* DELETE */
+.delete{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:50%;
+  background:#ef4444;
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+}
+
+/* FOOTER */
+footer{
+  margin-top:80px;
+  background:linear-gradient(135deg,#312e81,#4c1d95,#701a75);
+  color:#e5e7eb;
+  text-align:center;
+  padding:22px;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="back" href="/dashboard.html">← Dashboard</a>
+  <h2>Manage Advertisements</h2>
+  <p>Splash Screen Ads • Photos & Videos</p>
+</header>
+
+<div class="container">
+
+  <!-- UPLOAD -->
+  <div class="upload-box">
+    <h3>Add Advertisement</h3>
+    <p>Upload photo or video for splash ads</p>
+
+    <div class="file-input">
+      <label class="file-label" for="fileInput">Choose Photo / Video</label>
+      <input type="file" id="fileInput" accept="image/*,video/*" onchange="showName()">
+      <div class="file-name" id="fileName">No file selected</div>
+    </div>
+
+    <button onclick="uploadAd()">Upload Advertisement</button>
+  </div>
+
+  <!-- ADS LIST -->
+  <div class="ads-grid" id="adsGrid"></div>
+
+</div>
+
+<footer>
+  © 2026 Amovis Cafe & Fast Food · Advertisement Manager
+</footer>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking",
+  appId: "1:1049074624404:web:35b18f7c0470939257d181"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* CLOUDINARY */
+const CLOUD_NAME = "amoviscafe";
+const UPLOAD_PRESET = "amovis_gallery";
+
+/* DOM */
+const grid = document.getElementById("adsGrid");
+const fileInput = document.getElementById("fileInput");
+const fileName = document.getElementById("fileName");
+
+/* FILE NAME */
+function showName(){
+  const f = fileInput.files[0];
+  fileName.innerText = f ? f.name : "No file selected";
+}
+
+/* LOAD ADS */
+db.collection("ads")
+  .orderBy("createdAt","desc")
+  .onSnapshot(snapshot=>{
+    grid.innerHTML="";
+    snapshot.forEach(doc=>{
+      const a = doc.data();
+      grid.innerHTML += `
+        <div class="ad-card">
+          ${a.type==="image"
+            ? `<img src="${a.url}">`
+            : `<video src="${a.url}" muted autoplay loop></video>`
+          }
+          <button class="delete" onclick="deleteAd('${doc.id}')">×</button>
+        </div>
+      `;
+    });
+  });
+
+/* UPLOAD */
+function uploadAd(){
+  const f = fileInput.files[0];
+  if(!f) return alert("Select file first");
+
+  const data = new FormData();
+  data.append("file",f);
+  data.append("upload_preset",UPLOAD_PRESET);
+
+  fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,{
+    method:"POST",
+    body:data
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    db.collection("ads").add({
+      url: res.secure_url,
+      type: res.resource_type,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    fileInput.value="";
+    showName();
+  });
+}
+
+/* DELETE */
+function deleteAd(id){
+  if(confirm("Remove this advertisement?")){
+    db.collection("ads").doc(id).delete();
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard – Amovi's Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ================= RESET ================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+html,body{
+  width:100%;
+  overflow-x:hidden;
+}
+
+/* ================= BODY ================= */
+body{
+  min-height:100vh;
+  background:radial-gradient(circle at top,#f5d0fe,#ede9fe,#fce7f3);
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#ec4899);
+  padding:18px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  color:#fff;
+  box-shadow:0 18px 40px rgba(0,0,0,.35);
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo{
+  width:54px;
+  height:54px;
+  background:#fff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  font-weight:900;
+  color:#7c3aed;
+}
+
+header h1{
+  font-size:22px;
+  font-weight:800;
+}
+
+header button{
+  border:none;
+  background:#fff;
+  color:#6d28d9;
+  padding:10px 18px;
+  border-radius:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* ================= WRAPPER ================= */
+.wrapper{
+  max-width:1500px;
+  margin:28px auto;
+  background:#fff;
+  border-radius:26px;
+  padding:22px;
+  box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+
+/* ================= TABS ================= */
+.tabs{
+  display:flex;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.tab{
+  padding:10px 18px;
+  border-radius:16px;
+  background:#ede9fe;
+  color:#4c1d95;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.tab.active{
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  color:#fff;
+}
+
+/* ================= FILTER BAR ================= */
+.filters{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.filters input,
+.filters select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:13px;
+}
+
+.filters button{
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  border:none;
+  color:#fff;
+  font-weight:700;
+  border-radius:14px;
+  cursor:pointer;
+}
+
+/* ================= TABLE ================= */
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1450px;
+}
+
+th,td{
+  padding:12px 10px;
+  border-bottom:1px solid #e5e7eb;
+  font-size:13px;
+  text-align:left;
+  vertical-align:top;
+}
+
+th{
+  background:#ede9fe;
+  font-weight:800;
+  color:#4c1d95;
+  position:sticky;
+  top:0;
+}
+
+tr:hover{
+  background:#faf5ff;
+}
+
+/* ================= FOOD UI ================= */
+.food-box{
+  max-height:120px;
+  overflow-y:auto;
+  padding:8px;
+  border-radius:12px;
+  background:#faf5ff;
+  border:1px dashed #c4b5fd;
+}
+
+.food-item{
+  font-size:12px;
+  margin-bottom:6px;
+  display:grid;
+  grid-template-columns:1fr auto auto auto;
+  gap:8px;
+  align-items:center;
+}
+
+.food-name{
+  font-weight:600;
+  color:#4c1d95;
+}
+
+.food-qty{
+  font-weight:700;
+}
+
+.food-price,
+.food-total{
+  font-weight:700;
+  color:#065f46;
+}
+
+.food-box::-webkit-scrollbar{
+  width:6px;
+}
+.food-box::-webkit-scrollbar-thumb{
+  background:#c4b5fd;
+  border-radius:10px;
+}
+
+/* ================= BADGES ================= */
+.badge{
+  padding:6px 10px;
+  border-radius:12px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.booked{background:#fde68a;color:#92400e}
+.arrived{background:#bfdbfe;color:#1e3a8a}
+.completed{background:#dcfce7;color:#166534}
+
+/* ================= ACTION BUTTON ================= */
+.action-btn{
+  border:none;
+  padding:6px 12px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.arrive-btn{background:#60a5fa;color:#fff}
+.complete-btn{background:#22c55e;color:#fff}
+
+/* ================= MOBILE ================= */
+@media(max-width:768px){
+  header{
+    flex-direction:column;
+    gap:12px;
+  }
+  header h1{font-size:18px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">A</div>
+    <h1>Admin Dashboard – Amovi's Cafe</h1>
+  </div>
+  <button onclick="logout()">Logout</button>
+</header>
+
+<div class="wrapper">
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('today',this)">📅 Today</div>
+    <div class="tab" onclick="switchTab('history',this)">🕘 History</div>
+  </div>
+
+  <div class="filters">
+    <input type="date" id="fromDate">
+    <input type="date" id="toDate">
+
+    <select id="statusFilter">
+      <option value="">All Status</option>
+      <option value="BOOKED">Booked</option>
+      <option value="ARRIVED">Arrived</option>
+      <option value="COMPLETED">Completed</option>
+    </select>
+
+    <input type="text" id="search" placeholder="Search name / mobile">
+
+    <button onclick="applyFilters()">Apply</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>People</th>
+          <th>Food (Emoji + Cost)</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="list">
+        <tr><td colspan="9">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+const list = document.getElementById("list");
+
+let currentTab="today";
+
+/* 🔐 Auth */
+auth.onAuthStateChanged(user=>{
+  if(!user) location.href="admin-login.html";
+});
+
+/* 🍔 Emoji Detector */
+function foodEmoji(name){
+  name=name.toLowerCase();
+  if(name.includes("pizza")) return "🍕";
+  if(name.includes("burger")) return "🍔";
+  if(name.includes("sandwich")) return "🥪";
+  if(name.includes("pasta")) return "🍝";
+  if(name.includes("ice")||name.includes("mastani")) return "🍨";
+  if(name.includes("shake")) return "🥤";
+  if(name.includes("coffee")||name.includes("tea")) return "☕";
+  if(name.includes("fries")) return "🍟";
+  if(name.includes("momos")) return "🥟";
+  return "🍽️";
+}
+
+/* 📥 Load */
+function loadBookings(){
+  list.innerHTML="<tr><td colspan='9'>Loading...</td></tr>";
+  const today=new Date().toISOString().split("T")[0];
+  let q=db.collection("bookings");
+  if(currentTab==="today") q=q.where("date","==",today);
+  else q=q.where("date","<",today);
+
+  q.orderBy("date","desc").onSnapshot(snap=>{
+    list.innerHTML="";
+    snap.forEach(doc=>renderRow(doc.id,doc.data()));
+  });
+}
+
+/* 🧾 Render */
+function renderRow(id,b){
+  let foodHTML="<div class='food-box'>";
+  let total=0;
+
+  (b.foodItems||[]).forEach(f=>{
+    const price=f.price||0;
+    const qty=f.qty||1;
+    const line=price*qty;
+    total+=line;
+
+    foodHTML+=`
+      <div class="food-item">
+        <div class="food-name">${foodEmoji(f.name)} ${f.name}</div>
+        <div class="food-qty">×${qty}</div>
+        <div class="food-price">₹${price}</div>
+        <div class="food-total">₹${line}</div>
+      </div>`;
+  });
+
+  foodHTML+="</div>";
+
+  let badge=`<span class="badge booked">BOOKED</span>`;
+  let action=`<button class="action-btn arrive-btn" onclick="updateStatus('${id}','ARRIVED')">Arrived</button>`;
+
+  if(b.status==="ARRIVED"){
+    badge=`<span class="badge arrived">ARRIVED</span>`;
+    action=`<button class="action-btn complete-btn" onclick="updateStatus('${id}','COMPLETED')">Complete</button>`;
+  }
+  if(b.status==="COMPLETED"){
+    badge=`<span class="badge completed">COMPLETED</span>`;
+    action="-";
+  }
+
+  list.innerHTML+=`
+    <tr>
+      <td>${b.name}</td>
+      <td>${b.mobile}</td>
+      <td>${b.date}</td>
+      <td>${b.timeSlot}</td>
+      <td>${b.people}</td>
+      <td>${foodHTML}</td>
+      <td><b>₹${b.grandTotal || total}</b></td>
+      <td>${badge}</td>
+      <td>${action}</td>
+    </tr>`;
+}
+
+/* 🔄 Update Status */
+function updateStatus(id,status){
+  db.collection("bookings").doc(id).update({status});
+}
+
+/* 🔁 UI */
+function switchTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  loadBookings();
+}
+function applyFilters(){loadBookings();}
+function logout(){auth.signOut().then(()=>location.href="admin-login.html");}
+
+loadBookings();
+</script>
+
+</body>
+</html>
