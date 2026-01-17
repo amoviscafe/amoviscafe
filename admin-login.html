@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login – Amovi's Cafe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins',sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      background:linear-gradient(135deg,#e9d5ff,#fbcfe8);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .card{
+      background:#fff;
+      width:100%;
+      max-width:400px;
+      padding:34px;
+      border-radius:24px;
+      box-shadow:0 30px 70px rgba(0,0,0,0.25);
+      text-align:center;
+      animation:fadeUp .6s ease;
+    }
+
+    @keyframes fadeUp{
+      from{opacity:0; transform:translateY(20px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    .brand{
+      margin-bottom:18px;
+      font-weight:700;
+      font-size:20px;
+      background:linear-gradient(90deg,#7c3aed,#ec4899);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    h1{
+      font-size:22px;
+      margin-bottom:6px;
+    }
+
+    .subtitle{
+      font-size:14px;
+      color:#6b7280;
+      margin-bottom:24px;
+    }
+
+    input{
+      width:100%;
+      padding:13px;
+      border-radius:14px;
+      border:1.6px solid #d1d5db;
+      margin-bottom:16px;
+      font-size:14px;
+      transition:.3s;
+    }
+
+    input:focus{
+      outline:none;
+      border-color:#7c3aed;
+      box-shadow:0 0 0 2px rgba(124,58,237,.15);
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(90deg,#7c3aed,#ec4899);
+      color:white;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      margin-top:10px;
+      transition:.3s;
+    }
+
+    button:hover{
+      opacity:.92;
+      transform:translateY(-1px);
+    }
+
+    button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+
+    .error{
+      color:#dc2626;
+      font-size:13px;
+      margin-top:12px;
+      display:none;
+    }
+
+    /* ================= MOBILE ================= */
+    @media (max-width: 480px) {
+      body{padding:20px}
+      .card{padding:26px;border-radius:20px}
+      h1{font-size:20px}
+      .brand{font-size:17px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="brand">Amovi's Cafe & Fast Food</div>
+
+  <h1>Admin Login</h1>
+  <p class="subtitle">Authorized access only</p>
+
+  <input type="email" id="email" placeholder="Admin Email" />
+  <input type="password" id="password" placeholder="Password" />
+
+  <button id="loginBtn" onclick="login()">Login</button>
+
+  <p class="error" id="errorMsg">Invalid email or password</p>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+  /* ================= FIREBASE CONFIG ================= */
+  const firebaseConfig = {
+    apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+    authDomain: "amovis-cafe-booking.firebaseapp.com",
+    projectId: "amovis-cafe-booking",
+    appId: "1:1049074624404:web:35b18f7c0470939257d181"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  function login(){
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+    const btn = document.getElementById("loginBtn");
+
+    errorMsg.style.display = "none";
+
+    if(!email || !password){
+      errorMsg.innerText = "Please enter email and password";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "Logging in...";
+
+    auth.signInWithEmailAndPassword(email,password)
+      .then(()=>{
+        /* ✅ SAME FOLDER REDIRECT */
+        window.location.href = "dashboard.html";
+      })
+      .catch(()=>{
+        errorMsg.innerText = "Invalid email or password";
+        errorMsg.style.display = "block";
+        btn.disabled = false;
+        btn.innerText = "Login";
+      });
+  }
+</script>
+
+</body>
+</html>

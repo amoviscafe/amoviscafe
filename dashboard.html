@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Amovis Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #6a11cb;
+      --secondary: #2575fc;
+      --dark: #1f1f2e;
+      --light: #f4f6fb;
+      --card-bg: #ffffff;
+      --gradient: linear-gradient(135deg, #6a11cb, #2575fc);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--light);
+      color: #333;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--gradient);
+      padding: 25px 40px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .header span {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .logout-btn {
+      background: #fff;
+      color: var(--primary);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* MAIN CONTAINER */
+    .container {
+      padding: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .section-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      margin-bottom: 60px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.35s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--gradient);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.15);
+    }
+
+    .card-icon {
+      font-size: 34px;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 18px;
+    }
+
+    .card a {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 25px;
+      background: var(--gradient);
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .card a:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 25px;
+      color: #777;
+      font-size: 13px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .container {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Amovis Admin Dashboard</h1>
+      <span>Unified Control Panel – Booking & Cafe System</span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="container">
+
+    <!-- BOOKING SYSTEM -->
+    <section>
+      <div class="section-title">🎉 Booking System</div>
+      <div class="section-desc">
+        Manage birthday hall & mini theater online bookings
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">📢</div>
+          <h3>Manage Advertisements</h3>
+          <p>Add or remove splash screen advertisements.</p>
+          <a href="booking/ads.html">Open</a>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🖼️</div>
+          <h3>Upload Gallery Media</h3>
+          <p>Upload photos & videos for public gallery.</p>
+          <a href="booking/media.html">Open</a>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📋</div>
+          <h3>View Bookings</h3>
+          <p>See all confirmed bookings with details.</p>
+          <a href="booking/bookings.html">Open</a>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <h3>Open Public Gallery</h3>
+          <p>Preview gallery exactly like customers.</p>
+          <a href="booking/gallery.html">Open</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAFE CONTROL -->
+    <section>
+      <div class="section-title">☕ Cafe Control Center</div>
+      <div class="section-desc">
+        QR-based ordering, kitchen, billing & order history
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">🔳</div>
+          <h3>Tables & QR</h3>
+          <p>Generate QR codes and manage table status.</p>
+          <a href="cafe/tables.html">Open</a>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🍳</div>
+          <h3>Kitchen Screen</h3>
+          <p>Kitchen-only view for preparing orders.</p>
+          <a href="cafe/kitchen.html">Open</a>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">💰</div>
+          <h3>Billing & Payment</h3>
+          <p>Auto bill calculation & payment tracking.</p>
+          <a href="cafe/billing.html">Open</a>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📜</div>
+          <h3>Order History</h3>
+          <p>Completed orders, reports & analytics.</p>
+          <a href="cafe/history.html">Open</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    © 2026 Amovis Cafe & Fast Food • Designed for Premium Client Delivery
+  </div>
+
+  <!-- LOGOUT -->
+  <script>
+    function logout() {
+      window.location.href = "admin-login.html";
+    }
+  </script>
+
+</body>
+</html>
