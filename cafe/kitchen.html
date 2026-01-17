@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amovis Cafe – Kitchen Screen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+}
+.header{
+  background:linear-gradient(90deg,#ff512f,#dd2476);
+  padding:20px;
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+}
+.container{
+  padding:20px;
+  max-width:1200px;
+  margin:auto;
+}
+.order-card{
+  background:linear-gradient(135deg,#1e1e1e,#2c2c2c);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:20px;
+  border-left:6px solid #ff9800;
+}
+.order-head{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.order-id{color:#ffcc80;font-size:14px}
+.items{margin:10px 0}
+.item{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px dashed #444;
+  padding:6px 0;
+}
+.total{
+  text-align:right;
+  font-size:18px;
+  color:#4caf50;
+  font-weight:bold;
+}
+.done-btn{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  border:none;
+  border-radius:30px;
+  background:linear-gradient(90deg,#00b09b,#96c93d);
+  font-size:16px;
+  cursor:pointer;
+}
+.empty{
+  text-align:center;
+  margin-top:60px;
+  font-size:22px;
+  color:#ccc;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🍳 AMOVIS CAFE – KITCHEN</div>
+
+<div class="container">
+  <div id="orders" class="empty">Waiting for orders...</div>
+</div>
+
+<audio id="beep">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-766.mp3">
+</audio>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+
+const db = firebase.firestore();
+const ordersDiv = document.getElementById("orders");
+const beep = document.getElementById("beep");
+let firstLoad = true;
+
+/* 🔥 FIXED QUERY (NO orderBy) */
+db.collection("orders")
+.where("status","==","new")
+.onSnapshot(snapshot=>{
+  ordersDiv.innerHTML="";
+
+  if(snapshot.empty){
+    ordersDiv.innerHTML='<div class="empty">No Orders</div>';
+    return;
+  }
+
+  if(!firstLoad) beep.play();
+  firstLoad=false;
+
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    let itemsHTML="";
+
+    for(let name in d.items){
+      itemsHTML+=`
+        <div class="item">
+          <span>${name}</span>
+          <span>x${d.items[name].qty}</span>
+        </div>
+      `;
+    }
+
+    ordersDiv.innerHTML+=`
+      <div class="order-card">
+        <div class="order-head">
+          <div class="order-id">Order: ${doc.id.substring(0,6)}</div>
+        </div>
+        <div class="items">${itemsHTML}</div>
+        <div class="total">₹ ${d.total}</div>
+        <button class="done-btn" onclick="done('${doc.id}')">✔ DONE</button>
+      </div>
+    `;
+  });
+});
+
+function done(id){
+  db.collection("orders").doc(id).update({status:"completed"});
+}
+</script>
+
+</body>
+</html>

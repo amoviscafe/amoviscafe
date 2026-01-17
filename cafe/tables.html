@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tables & QR – Cafe Control Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- QR LIBRARY -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+/* ================= RESET ================= */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+/* ================= BODY ================= */
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#ede9fe,#fce7f3);
+  padding:20px;
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(90deg,#6d28d9,#7c3aed,#ec4899);
+  color:#fff;
+  padding:18px 24px;
+  border-radius:22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 18px 40px rgba(0,0,0,.35);
+}
+
+header h2{
+  font-size:22px;
+  font-weight:800;
+}
+
+header span{
+  font-size:13px;
+  opacity:.9;
+}
+
+/* ================= GRID ================= */
+.container{
+  max-width:1200px;
+  margin:30px auto;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:22px;
+}
+
+/* ================= TABLE CARD ================= */
+.card{
+  background:#fff;
+  border-radius:24px;
+  padding:18px;
+  box-shadow:0 20px 45px rgba(0,0,0,.25);
+  text-align:center;
+  transition:.3s;
+}
+
+.card:hover{
+  transform:translateY(-6px);
+}
+
+.card h3{
+  margin-bottom:10px;
+  color:#4c1d95;
+  font-weight:800;
+}
+
+.qr-box{
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  padding:14px;
+  border-radius:18px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:12px 0;
+}
+
+.qr-inner{
+  background:#fff;
+  padding:10px;
+  border-radius:14px;
+}
+
+/* ================= BUTTON ================= */
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(90deg,#16a34a,#22c55e);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+  font-size:14px;
+  margin-top:8px;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+/* ================= FOOTER TEXT ================= */
+.note{
+  text-align:center;
+  margin-top:24px;
+  font-size:13px;
+  color:#6b7280;
+}
+
+/* ================= MOBILE ================= */
+@media(max-width:600px){
+  header{
+    flex-direction:column;
+    gap:8px;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <h2>🔳 Tables & QR System</h2>
+    <span>Amovi's Cafe & Fast Food</span>
+  </div>
+  <div>15 Tables • Scan to Order</div>
+</header>
+
+<div class="container">
+  <div class="grid" id="tableGrid"></div>
+
+  <div class="note">
+    📌 Print QR and paste on respective tables<br>
+    Each QR is unique & table-linked
+  </div>
+</div>
+
+<!-- TABLE SCRIPT -->
+<script src="js/tables.js"></script>
+
+</body>
+</html>

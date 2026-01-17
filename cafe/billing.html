@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amovis Cafe – Billing Counter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#141e30,#243b55);
+  color:#fff;
+}
+
+/* ================= HEADER ================= */
+.header{
+  background:linear-gradient(90deg,#f7971e,#ffd200);
+  color:#000;
+  padding:20px;
+  text-align:center;
+  font-size:28px;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+
+/* ================= LAYOUT ================= */
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+/* ================= BILL CARD ================= */
+.bill-card{
+  background:linear-gradient(135deg,#1f1f1f,#2d2d2d);
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:20px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.4);
+  border-left:6px solid #4caf50;
+}
+
+.bill-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.bill-id{
+  font-size:15px;
+  color:#ffeb3b;
+}
+
+.bill-time{
+  font-size:12px;
+  color:#ccc;
+}
+
+/* ================= ITEMS ================= */
+.items{
+  margin-top:10px;
+  margin-bottom:10px;
+}
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px dashed #444;
+}
+.item:last-child{border-bottom:none}
+
+/* ================= TOTAL ================= */
+.total{
+  text-align:right;
+  font-size:20px;
+  font-weight:bold;
+  color:#00e676;
+  margin-top:10px;
+}
+
+/* ================= BUTTON ================= */
+.pay-btn{
+  width:100%;
+  margin-top:14px;
+  padding:12px;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  background:linear-gradient(90deg,#00c853,#b2ff59);
+  color:#000;
+  transition:0.3s;
+}
+.pay-btn:hover{
+  transform:scale(1.04);
+}
+
+/* ================= EMPTY ================= */
+.empty{
+  text-align:center;
+  font-size:22px;
+  color:#ccc;
+  margin-top:80px;
+}
+
+/* ================= FOOTER ================= */
+.footer{
+  text-align:center;
+  font-size:12px;
+  color:#aaa;
+  padding:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">💳 AMOVIS CAFE – BILLING COUNTER</div>
+
+<div class="container">
+  <div id="bills" class="empty">Waiting for completed orders...</div>
+</div>
+
+<div class="footer">Billing Screen • Connected with Kitchen & History</div>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+
+const db = firebase.firestore();
+const billsDiv = document.getElementById("bills");
+
+/* ================= LOAD ORDERS FROM KITCHEN ================= */
+db.collection("orders")
+.where("status","==","completed")   // 👨‍🍳 Kitchen DONE
+.onSnapshot(snapshot=>{
+  billsDiv.innerHTML="";
+
+  if(snapshot.empty){
+    billsDiv.innerHTML='<div class="empty">No bills to generate 💳</div>';
+    return;
+  }
+
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    let itemsHTML="";
+
+    for(let name in d.items){
+      itemsHTML+=`
+        <div class="item">
+          <span>${name}</span>
+          <span>x${d.items[name].qty}</span>
+        </div>
+      `;
+    }
+
+    let timeText = d.time?.seconds
+      ? new Date(d.time.seconds*1000).toLocaleString()
+      : '';
+
+    billsDiv.innerHTML+=`
+      <div class="bill-card">
+        <div class="bill-head">
+          <div class="bill-id">Order ID: ${doc.id.substring(0,6).toUpperCase()}</div>
+          <div class="bill-time">${timeText}</div>
+        </div>
+
+        <div class="items">${itemsHTML}</div>
+
+        <div class="total">₹ ${d.total}</div>
+
+        <button class="pay-btn" onclick="markPaid('${doc.id}')">
+          💰 PAYMENT DONE
+        </button>
+      </div>
+    `;
+  });
+});
+
+/* ================= PAYMENT DONE → HISTORY ================= */
+function markPaid(id){
+  if(confirm("Confirm payment received?")){
+    db.collection("orders").doc(id).update({
+      status: "COMPLETED", // 🔥 History listens to this
+      paymentMode: "Cash", // or UPI
+      completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+</script>
+
+</body>
+</html>

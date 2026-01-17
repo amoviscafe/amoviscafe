@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amovis Cafe & Fast Food – Digital Menu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#ff9966,#ff5e62);
+}
+
+/* ===== HEADER ===== */
+.header{
+  background:linear-gradient(90deg,#2b1a14,#4b2c1f);
+  color:#ffd966;
+  text-align:center;
+  padding:20px;
+  font-size:28px;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+
+/* ===== LAYOUT ===== */
+.container{
+  display:grid;
+  grid-template-columns:2.5fr 1fr;
+  gap:16px;
+  padding:16px;
+}
+@media(max-width:900px){
+  .container{grid-template-columns:1fr}
+}
+
+/* ===== MENU ===== */
+.menu{
+  background:#2a1813;
+  color:#fff;
+  border-radius:20px;
+  padding:20px;
+}
+.category{
+  margin-bottom:30px;
+}
+.category h2{
+  text-align:center;
+  color:#ffd966;
+  border-bottom:2px solid #444;
+  padding-bottom:6px;
+  margin-bottom:12px;
+}
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:7px 0;
+  border-bottom:1px dashed #444;
+}
+.item:last-child{border-bottom:none}
+.item button{
+  background:linear-gradient(135deg,#28a745,#20c997);
+  border:none;
+  color:#fff;
+  padding:6px 14px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+/* ===== CART ===== */
+.cart{
+  background:#fff;
+  border-radius:20px;
+  padding:16px;
+}
+.cart h3{text-align:center;margin-top:0}
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:8px 0;
+  font-size:14px;
+}
+.qty-box{display:flex;align-items:center;gap:6px}
+.qty-btn{
+  background:linear-gradient(135deg,#6a11cb,#2575fc);
+  border:none;
+  color:#fff;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  cursor:pointer;
+}
+.qty{min-width:20px;text-align:center;font-weight:bold}
+.total{
+  font-size:18px;
+  font-weight:bold;
+  text-align:right;
+  margin-top:12px;
+}
+.place{
+  width:100%;
+  margin-top:14px;
+  padding:12px;
+  background:linear-gradient(90deg,#6a11cb,#2575fc);
+  color:#fff;
+  border:none;
+  border-radius:30px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  text-align:center;
+  color:#fff;
+  font-size:12px;
+  padding:10px;
+}
+
+/* ===== THANK YOU POPUP ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modal-box{
+  background:#fff;
+  width:320px;
+  border-radius:22px;
+  padding:26px;
+  text-align:center;
+  animation:pop .4s ease;
+}
+@keyframes pop{
+  from{transform:scale(.7);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.check{
+  width:70px;height:70px;
+  border-radius:50%;
+  background:#22c55e;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  margin:0 auto 12px;
+}
+.modal-box h2{margin:6px 0;color:#111}
+.modal-box p{color:#374151;font-size:14px}
+.modal-box button{
+  margin-top:14px;
+  padding:10px 22px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(90deg,#6a11cb,#2575fc);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">☕ Amovis Cafe & Fast Food – QR Digital Menu</div>
+
+<div class="container">
+
+<!-- ================= MENU ================= -->
+<div class="menu">
+
+<!-- ================= CADBEE ================= -->
+<div class="category">
+<h2>🍫 Cadbee</h2>
+<div class="item"><span>White Choco Creame with Crush – ₹100</span><button onclick="addItem('White Choco Creame with Crush',100)">Add</button></div>
+<div class="item"><span>KitKat Choco Creame White Crush – ₹120</span><button onclick="addItem('KitKat Choco Creame White Crush',120)">Add</button></div>
+<div class="item"><span>Cadbee-B – ₹120</span><button onclick="addItem('Cadbee-B',120)">Add</button></div>
+<div class="item"><span>Cadbee Black / White – ₹120</span><button onclick="addItem('Cadbee Black White',120)">Add</button></div>
+<div class="item"><span>Dryfruit Choco Cadbee – ₹130</span><button onclick="addItem('Dryfruit Choco Cadbee',130)">Add</button></div>
+</div>
+
+<!-- ================= MASTANI ================= -->
+<div class="category">
+<h2>🥛 Mastani</h2>
+<div class="item"><span>Mango Mastani – ₹100</span><button onclick="addItem('Mango Mastani',100)">Add</button></div>
+<div class="item"><span>Mix Fruit Mastani – ₹100</span><button onclick="addItem('Mix Fruit Mastani',100)">Add</button></div>
+<div class="item"><span>Strawberry Mastani – ₹100</span><button onclick="addItem('Strawberry Mastani',100)">Add</button></div>
+<div class="item"><span>Butterscotch Mastani – ₹100</span><button onclick="addItem('Butterscotch Mastani',100)">Add</button></div>
+<div class="item"><span>Chocolate Mastani – ₹100</span><button onclick="addItem('Chocolate Mastani',100)">Add</button></div>
+<div class="item"><span>Dry Fruit Mastani – ₹120</span><button onclick="addItem('Dry Fruit Mastani',120)">Add</button></div>
+</div>
+
+<!-- ================= PIZZAS ================= -->
+<div class="category">
+<h2>🍕 Pizzas</h2>
+<div class="item"><span>Classic Cheese (S) – ₹120</span><button onclick="addItem('Classic Cheese S',120)">Add</button></div>
+<div class="item"><span>Classic Cheese (L) – ₹150</span><button onclick="addItem('Classic Cheese L',150)">Add</button></div>
+<div class="item"><span>Peri Peri (S) – ₹130</span><button onclick="addItem('Peri Peri Pizza S',130)">Add</button></div>
+<div class="item"><span>Peri Peri (L) – ₹170</span><button onclick="addItem('Peri Peri Pizza L',170)">Add</button></div>
+<div class="item"><span>Mushroom (S) – ₹140</span><button onclick="addItem('Mushroom Pizza S',140)">Add</button></div>
+<div class="item"><span>Mushroom (L) – ₹170</span><button onclick="addItem('Mushroom Pizza L',170)">Add</button></div>
+<div class="item"><span>Paneer Tikka (S) – ₹150</span><button onclick="addItem('Paneer Tikka Pizza S',150)">Add</button></div>
+<div class="item"><span>Paneer Tikka (L) – ₹180</span><button onclick="addItem('Paneer Tikka Pizza L',180)">Add</button></div>
+<div class="item"><span>Special Pizza (S) – ₹160</span><button onclick="addItem('Special Pizza S',160)">Add</button></div>
+<div class="item"><span>Special Pizza (L) – ₹210</span><button onclick="addItem('Special Pizza L',210)">Add</button></div>
+</div>
+
+<!-- ================= VEG RICE & NOODLES ================= -->
+<div class="category">
+<h2>🍚 Veg Rice & 🍜 Noodles</h2>
+<div class="item"><span>Fried Rice – ₹130</span><button onclick="addItem('Fried Rice',130)">Add</button></div>
+<div class="item"><span>Schezwan Rice – ₹150</span><button onclick="addItem('Schezwan Rice',150)">Add</button></div>
+<div class="item"><span>Manchurian Rice – ₹170</span><button onclick="addItem('Manchurian Rice',170)">Add</button></div>
+<div class="item"><span>Triple Rice – ₹180</span><button onclick="addItem('Triple Rice',180)">Add</button></div>
+<div class="item"><span>Singapore Rice – ₹200</span><button onclick="addItem('Singapore Rice',200)">Add</button></div>
+
+<div class="item"><span>Halka Noodles – ₹130</span><button onclick="addItem('Halka Noodles',130)">Add</button></div>
+<div class="item"><span>Schezwan Noodles – ₹150</span><button onclick="addItem('Schezwan Noodles',150)">Add</button></div>
+<div class="item"><span>Manchurian Noodles – ₹170</span><button onclick="addItem('Manchurian Noodles',170)">Add</button></div>
+<div class="item"><span>Singapore Noodles – ₹200</span><button onclick="addItem('Singapore Noodles',200)">Add</button></div>
+<div class="item"><span>Chowmein Noodles – ₹180</span><button onclick="addItem('Chowmein Noodles',180)">Add</button></div>
+</div>
+
+<!-- ================= PANIPURI & SNACKS ================= -->
+<div class="category">
+<h2>🥙 Panipuri & Snacks</h2>
+<div class="item"><span>Pani Puri – ₹30</span><button onclick="addItem('Pani Puri',30)">Add</button></div>
+<div class="item"><span>Shev Puri – ₹40</span><button onclick="addItem('Shev Puri',40)">Add</button></div>
+<div class="item"><span>Dahi Shev Puri – ₹50</span><button onclick="addItem('Dahi Shev Puri',50)">Add</button></div>
+<div class="item"><span>Dilli Chat Puri – ₹60</span><button onclick="addItem('Dilli Chat Puri',60)">Add</button></div>
+<div class="item"><span>Sukhi Bhel – ₹40</span><button onclick="addItem('Sukhi Bhel',40)">Add</button></div>
+<div class="item"><span>Oli Bhel – ₹50</span><button onclick="addItem('Oli Bhel',50)">Add</button></div>
+<div class="item"><span>Kurkuri Namkin Bhel – ₹80</span><button onclick="addItem('Kurkuri Namkin Bhel',80)">Add</button></div>
+<div class="item"><span>Chaynij Bhel – ₹120</span><button onclick="addItem('Chaynij Bhel',120)">Add</button></div>
+
+<div class="item"><span>Masala Papad – ₹30</span><button onclick="addItem('Masala Papad',30)">Add</button></div>
+<div class="item"><span>Pop Corn – ₹40</span><button onclick="addItem('Pop Corn',40)">Add</button></div>
+<div class="item"><span>Fruit Salad – ₹80</span><button onclick="addItem('Fruit Salad',80)">Add</button></div>
+<div class="item"><span>Manchav Soup – ₹80</span><button onclick="addItem('Manchav Soup',80)">Add</button></div>
+<div class="item"><span>Lasun Fry – ₹100</span><button onclick="addItem('Lasun Fry',100)">Add</button></div>
+</div>
+
+<!-- ================= PAV BHAJI ================= -->
+<div class="category">
+<h2>🍛 Pav Bhaji</h2>
+<div class="item"><span>Pav Bhaji – ₹60</span><button onclick="addItem('Pav Bhaji',60)">Add</button></div>
+<div class="item"><span>Cheese Pav Bhaji – ₹80</span><button onclick="addItem('Cheese Pav Bhaji',80)">Add</button></div>
+</div>
+
+<!-- ================= MOCKTAILS & HOT ================= -->
+<div class="category">
+<h2>🍹 Mocktails & ☕ Hot</h2>
+<div class="item"><span>Mojito – ₹100</span><button onclick="addItem('Mojito',100)">Add</button></div>
+<div class="item"><span>Le Blue – ₹100</span><button onclick="addItem('Le Blue',100)">Add</button></div>
+<div class="item"><span>Cucumber Lime – ₹100</span><button onclick="addItem('Cucumber Lime',100)">Add</button></div>
+<div class="item"><span>Lemon Ice Tea – ₹100</span><button onclick="addItem('Lemon Ice Tea',100)">Add</button></div>
+<div class="item"><span>Water Melon – ₹100</span><button onclick="addItem('Water Melon',100)">Add</button></div>
+<div class="item"><span>Cocktail – ₹100</span><button onclick="addItem('Cocktail',100)">Add</button></div>
+
+<div class="item"><span>Tea – ₹20</span><button onclick="addItem('Tea',20)">Add</button></div>
+<div class="item"><span>Hot Coffee – ₹30</span><button onclick="addItem('Hot Coffee',30)">Add</button></div>
+<div class="item"><span>Hot Chocolate – ₹40</span><button onclick="addItem('Hot Chocolate',40)">Add</button></div>
+</div>
+
+<!-- ================= ICE CREAM & SHAKE ================= -->
+<div class="category">
+<h2>🍨 Ice Cream & 🥤 Shake</h2>
+<div class="item"><span>Vanilla – ₹60</span><button onclick="addItem('Ice Cream Vanilla',60)">Add</button></div>
+<div class="item"><span>Chocolate – ₹60</span><button onclick="addItem('Ice Cream Chocolate',60)">Add</button></div>
+<div class="item"><span>Strawberry – ₹60</span><button onclick="addItem('Ice Cream Strawberry',60)">Add</button></div>
+<div class="item"><span>Butterscotch – ₹60</span><button onclick="addItem('Ice Cream Butterscotch',60)">Add</button></div>
+<div class="item"><span>Mango – ₹70</span><button onclick="addItem('Ice Cream Mango',70)">Add</button></div>
+<div class="item"><span>Pista – ₹70</span><button onclick="addItem('Ice Cream Pista',70)">Add</button></div>
+<div class="item"><span>American Nuts – ₹70</span><button onclick="addItem('Ice Cream American Nuts',70)">Add</button></div>
+
+<div class="item"><span>Vanilla Shake – ₹80</span><button onclick="addItem('Vanilla Shake',80)">Add</button></div>
+<div class="item"><span>Chocolate Shake – ₹80</span><button onclick="addItem('Chocolate Shake',80)">Add</button></div>
+<div class="item"><span>Oreo Shake – ₹80</span><button onclick="addItem('Oreo Shake',80)">Add</button></div>
+<div class="item"><span>KitKat Shake – ₹80</span><button onclick="addItem('KitKat Shake',80)">Add</button></div>
+<div class="item"><span>Dry Fruit Shake – ₹90</span><button onclick="addItem('Dry Fruit Shake',90)">Add</button></div>
+</div>
+
+<!-- ================= PASTA, SANDWICH, GARLIC BREAD ================= -->
+<div class="category">
+<h2>🍝 Pasta • 🥪 Sandwich • 🧄 Garlic Bread</h2>
+<div class="item"><span>White Sauce Pasta – ₹100</span><button onclick="addItem('White Sauce Pasta',100)">Add</button></div>
+<div class="item"><span>Red Sauce Pasta – ₹120</span><button onclick="addItem('Red Sauce Pasta',120)">Add</button></div>
+<div class="item"><span>Schezwan Pasta – ₹120</span><button onclick="addItem('Schezwan Pasta',120)">Add</button></div>
+
+<div class="item"><span>Plain Sandwich – ₹50</span><button onclick="addItem('Plain Sandwich',50)">Add</button></div>
+<div class="item"><span>Cheese Grill Sandwich – ₹90</span><button onclick="addItem('Cheese Grill Sandwich',90)">Add</button></div>
+<div class="item"><span>Special Sandwich – ₹110</span><button onclick="addItem('Special Sandwich',110)">Add</button></div>
+
+<div class="item"><span>Garlic Bread – ₹80</span><button onclick="addItem('Garlic Bread',80)">Add</button></div>
+<div class="item"><span>Cheese Garlic Bread – ₹100</span><button onclick="addItem('Cheese Garlic Bread',100)">Add</button></div>
+</div>
+
+</div>
+
+<!-- ================= CART ================= -->
+<div class="cart">
+<h3>🛒 Your Cart</h3>
+<div id="cart"></div>
+<div class="total">Total ₹ <span id="total">0</span></div>
+<button class="place" onclick="placeOrder()">PLACE ORDER</button>
+</div>
+
+</div>
+
+<div class="footer">Amovis Cafe & Fast Food – Smart Ordering System</div>
+
+<!-- ===== THANK YOU POPUP ===== -->
+<div id="popup" class="modal">
+  <div class="modal-box">
+    <div class="check">✔</div>
+    <h2>Thank You 😊</h2>
+    <p>Your order has been placed successfully</p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+const db = firebase.firestore();
+
+let cart={};
+
+function addItem(name,price){
+  if(cart[name]) cart[name].qty++;
+  else cart[name]={price:price,qty:1};
+  render();
+}
+function changeQty(name,delta){
+  cart[name].qty+=delta;
+  if(cart[name].qty<=0) delete cart[name];
+  render();
+}
+function render(){
+  const cartDiv=document.getElementById("cart");
+  const totalSpan=document.getElementById("total");
+  cartDiv.innerHTML="";
+  let total=0;
+  for(let name in cart){
+    let i=cart[name];
+    total+=i.price*i.qty;
+    cartDiv.innerHTML+=`
+    <div class="cart-item">
+      <span>${name} ₹${i.price}</span>
+      <div class="qty-box">
+        <button class="qty-btn" onclick="changeQty('${name}',-1)">−</button>
+        <span class="qty">${i.qty}</span>
+        <button class="qty-btn" onclick="changeQty('${name}',1)">+</button>
+      </div>
+    </div>`;
+  }
+  totalSpan.innerText=total;
+}
+
+function placeOrder(){
+  if(Object.keys(cart).length===0){
+    alert("Cart Empty");
+    return;
+  }
+  db.collection("orders").add({
+    items:cart,
+    total:document.getElementById("total").innerText,
+    status:"new",
+    time:new Date()
+  }).then(()=>{
+    cart={};
+    render();
+    document.getElementById("popup").style.display="flex";
+    setTimeout(closePopup,2500);
+  });
+}
+function closePopup(){
+  document.getElementById("popup").style.display="none";
+}
+</script>
+
+</body>
+</html>

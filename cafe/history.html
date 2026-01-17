@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order History – Amovis Cafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  margin:0;
+  background:#020617;
+  color:#fff;
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  padding:18px;
+  text-align:center;
+  font-size:22px;
+  font-weight:800;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+/* ================= FILTERS ================= */
+.filters{
+  padding:16px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+  background:#0f172a;
+}
+
+.filters input,
+.filters select,
+.filters button{
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  font-weight:600;
+}
+
+.filters input,
+.filters select{
+  background:#1e293b;
+  color:#fff;
+}
+
+.filters button{
+  background:#22c55e;
+  color:#000;
+  cursor:pointer;
+}
+
+/* ================= SUMMARY ================= */
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  padding:16px;
+}
+
+.card{
+  background:#0f172a;
+  padding:18px;
+  border-radius:18px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+  text-align:center;
+}
+
+.card h3{
+  margin:0;
+  font-size:26px;
+  color:#facc15;
+}
+
+.card p{
+  margin:6px 0 0;
+  opacity:.8;
+}
+
+/* ================= LIST ================= */
+.list{
+  padding:16px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+  gap:18px;
+}
+
+.order{
+  background:#0f172a;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+
+.order h4{
+  margin:0 0 6px;
+  color:#38bdf8;
+}
+
+.items{
+  font-size:14px;
+  margin:8px 0;
+}
+
+.items div{
+  margin:3px 0;
+}
+
+.meta{
+  font-size:13px;
+  opacity:.8;
+  margin-top:6px;
+}
+
+.total{
+  margin-top:8px;
+  font-size:18px;
+  font-weight:800;
+  color:#22c55e;
+}
+
+/* ================= EMPTY ================= */
+.empty{
+  text-align:center;
+  margin-top:80px;
+  opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<header>📊 Order History</header>
+
+<div class="filters">
+  <input type="date" id="fromDate">
+  <input type="date" id="toDate">
+  <button onclick="applyFilters()">Apply Filters</button>
+</div>
+
+<div class="summary">
+  <div class="card">
+    <h3 id="totalOrders">0</h3>
+    <p>Total Orders</p>
+  </div>
+  <div class="card">
+    <h3 id="totalSales">₹0</h3>
+    <p>Total Sales</p>
+  </div>
+</div>
+
+<div class="list" id="orderList"></div>
+<div class="empty" id="empty" style="display:none">No orders found</div>
+
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain: "amovis-cafe-booking.firebaseapp.com",
+  projectId: "amovis-cafe-booking"
+});
+
+const db = firebase.firestore();
+
+const list = document.getElementById("orderList");
+const empty = document.getElementById("empty");
+const totalOrdersEl = document.getElementById("totalOrders");
+const totalSalesEl = document.getElementById("totalSales");
+
+let allOrders = [];
+
+/* ================= LOAD HISTORY ================= */
+db.collection("orders")
+.where("status","==","COMPLETED")
+.orderBy("completedAt","desc")
+.onSnapshot(snapshot=>{
+  allOrders = [];
+  snapshot.forEach(doc=>{
+    allOrders.push(doc.data());
+  });
+  render(allOrders);
+});
+
+/* ================= RENDER ================= */
+function render(data){
+  list.innerHTML="";
+  let totalSales = 0;
+
+  if(!data.length){
+    empty.style.display="block";
+    totalOrdersEl.innerText="0";
+    totalSalesEl.innerText="₹0";
+    return;
+  }
+
+  empty.style.display="none";
+
+  data.forEach(o=>{
+    totalSales += Number(o.total);
+
+    let itemsHTML = "";
+    for(let name in o.items){
+      itemsHTML += `<div>• ${name} × ${o.items[name].qty}</div>`;
+    }
+
+    list.innerHTML += `
+      <div class="order">
+        <h4>🧾 Order</h4>
+        <div class="items">${itemsHTML}</div>
+        <div class="meta">
+          💳 ${o.paymentMode || "-"}<br>
+          🕒 ${o.completedAt?.toDate().toLocaleString()}
+        </div>
+        <div class="total">₹${o.total}</div>
+      </div>
+    `;
+  });
+
+  totalOrdersEl.innerText = data.length;
+  totalSalesEl.innerText = "₹" + totalSales;
+}
+
+/* ================= FILTER ================= */
+function applyFilters(){
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
+
+  let filtered = allOrders;
+
+  if(from){
+    const f = new Date(from);
+    filtered = filtered.filter(o=>o.completedAt?.toDate() >= f);
+  }
+  if(to){
+    const t = new Date(to);
+    t.setHours(23,59,59,999);
+    filtered = filtered.filter(o=>o.completedAt?.toDate() <= t);
+  }
+
+  render(filtered);
+}
+</script>
+
+</body>
+</html>
