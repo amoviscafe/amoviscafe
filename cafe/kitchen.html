@@ -33,6 +33,20 @@ body{
   box-shadow:0 18px 45px rgba(0,0,0,.65);
   position:relative;
 }
+
+/* 🔁 PART ORDER COLOR */
+.order-card.part{
+  background:linear-gradient(135deg,#0284c7,#22d3ee);
+  border:3px solid #67e8f9;
+  box-shadow:0 0 35px rgba(34,211,238,.9);
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 12px rgba(34,211,238,.6)}
+  50%{box-shadow:0 0 40px rgba(34,211,238,1)}
+  100%{box-shadow:0 0 12px rgba(34,211,238,.6)}
+}
+
 .place-badge{
   position:absolute;
   top:-26px;
@@ -44,9 +58,20 @@ body{
   font-size:28px;
   font-weight:900;
 }
+.part-label{
+  margin-top:6px;
+  text-align:center;
+  font-size:14px;
+  font-weight:900;
+  background:#cffafe;
+  color:#083344;
+  padding:4px 14px;
+  border-radius:20px;
+  display:inline-block;
+}
 .order-no{
   text-align:center;
-  margin-top:20px;
+  margin-top:18px;
   font-size:20px;
   font-weight:900;
   color:#00e5ff;
@@ -79,7 +104,7 @@ body{
 }
 .actions{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;
+  grid-template-columns:1fr 1fr;
   gap:14px;
   margin-top:20px;
 }
@@ -90,7 +115,6 @@ body{
   font-size:18px;
   font-weight:800;
   background:linear-gradient(90deg,#facc15,#f97316);
-  color:#000;
 }
 .done-btn{
   padding:16px;
@@ -99,15 +123,6 @@ body{
   font-size:18px;
   font-weight:800;
   background:linear-gradient(90deg,#00b09b,#96c93d);
-}
-.cancel-btn{
-  padding:16px;
-  border:none;
-  border-radius:40px;
-  font-size:18px;
-  font-weight:800;
-  background:linear-gradient(90deg,#ff416c,#ff4b2b);
-  color:#fff;
 }
 .empty{
   text-align:center;
@@ -138,45 +153,40 @@ firebase.initializeApp({
   projectId:"amovis-cafe-booking"
 });
 
-const db = firebase.firestore();
-const ordersDiv = document.getElementById("orders");
-const sound = document.getElementById("orderSound");
+const db=firebase.firestore();
+const ordersDiv=document.getElementById("orders");
+const sound=document.getElementById("orderSound");
 
-let soundEnabled = false;
-let bellTimer = null;
+let soundEnabled=false;
+let bellTimer=null;
 
-/* 🔐 unlock sound */
+const lastItemCount={};
+const partOrderFlag={}; // 🔑 FIX
+
 document.body.addEventListener("click",()=>{
   if(!soundEnabled){
     sound.play().then(()=>{
       sound.pause();
-      sound.currentTime = 0;
-      soundEnabled = true;
+      sound.currentTime=0;
+      soundEnabled=true;
     });
   }
 },{once:true});
 
-/* 🔔 bell control */
 function startBell(){
-  if(bellTimer || !soundEnabled) return;
-  bellTimer = setInterval(()=>{
-    sound.currentTime = 0;
+  if(bellTimer||!soundEnabled) return;
+  bellTimer=setInterval(()=>{
+    sound.currentTime=0;
     sound.play().catch(()=>{});
   },3000);
 }
 function stopBell(){
-  if(bellTimer){
-    clearInterval(bellTimer);
-    bellTimer = null;
-  }
+  clearInterval(bellTimer);
+  bellTimer=null;
   sound.pause();
-  sound.currentTime = 0;
+  sound.currentTime=0;
 }
 
-/* 🧠 track previous item count */
-const lastItemCount = {};
-
-/* 🔥 realtime orders */
 db.collection("orders")
 .where("status","in",["new","accepted"])
 .onSnapshot(snapshot=>{
@@ -188,85 +198,67 @@ db.collection("orders")
     return;
   }
 
-  let shouldRing = false;
-  let orderNo = 1;
+  let ring=false;
+  let orderNo=1;
 
   snapshot.forEach(doc=>{
-    const d = doc.data();
-    const items = d.items || {};
-    const itemCount = Object.values(items)
-      .reduce((s,i)=>s+i.qty,0);
+    const d=doc.data();
+    const items=d.items||{};
+    const count=Object.values(items).reduce((s,i)=>s+i.qty,0);
 
-    /* 🔁 PART ORDER DETECT */
     if(
-      d.status === "accepted" &&
-      lastItemCount[doc.id] !== undefined &&
-      itemCount > lastItemCount[doc.id]
+      d.status==="accepted" &&
+      lastItemCount[doc.id]!=null &&
+      count>lastItemCount[doc.id]
     ){
-      shouldRing = true;
-      d.__forceAccept = true; // local flag
+      partOrderFlag[doc.id]=true;   // ⭐ main fix
+      ring=true;
+      db.collection("orders").doc(doc.id).update({status:"new"});
     }
 
-    if(d.status === "new") shouldRing = true;
-    lastItemCount[doc.id] = itemCount;
+    if(d.status==="new") ring=true;
+    lastItemCount[doc.id]=count;
 
-    const place = d.type && d.no ? `${d.type} ${d.no}` : "DIRECT";
+    const place=d.type&&d.no?`${d.type} ${d.no}`:"DIRECT";
+    let html="",total=0;
 
-    let itemsHTML="", total=0;
-    for(let name in items){
-      const it = items[name];
-      const amt = it.price * it.qty;
-      total += amt;
-      itemsHTML += `
-        <div class="item">
-          <div>${name} × ${it.qty}</div>
-          <div>₹${amt}</div>
-        </div>`;
+    for(let n in items){
+      const it=items[n];
+      total+=it.price*it.qty;
+      html+=`<div class="item"><div>${n} × ${it.qty}</div><div>₹${it.price*it.qty}</div></div>`;
     }
 
-    ordersDiv.innerHTML += `
-      <div class="order-card">
+    ordersDiv.innerHTML+=`
+      <div class="order-card ${partOrderFlag[doc.id]?'part':''}">
         <div class="place-badge">${place}</div>
+        ${partOrderFlag[doc.id]?'<div class="part-label">🔁 PART ORDER</div>':''}
         <div class="order-no">ORDER #${orderNo++}</div>
-
-        <div class="customer">
-          ${d.customerName || "Guest"}
-          <span>📞 ${d.customerMobile || "-"}</span>
-        </div>
-
-        <div class="items">${itemsHTML}</div>
+        <div class="customer">${d.customerName||"Guest"}<span>📞 ${d.customerMobile||"-"}</span></div>
+        <div class="items">${html}</div>
         <div class="total">₹ ${total}</div>
-
         <div class="actions">
           ${
-            d.status==="new" || d.__forceAccept
+            d.status==="new"
             ? `<button class="accept-btn" onclick="acceptOrder('${doc.id}')">🟡 ACCEPT</button>`
             : `<button class="accept-btn" disabled>ACCEPTED</button>`
           }
           <button class="done-btn" onclick="markDone('${doc.id}')">✔ READY</button>
-          <button class="cancel-btn" onclick="cancelOrder('${doc.id}')">✖ CANCEL</button>
         </div>
-      </div>
-    `;
+      </div>`;
   });
 
-  shouldRing ? startBell() : stopBell();
+  ring?startBell():stopBell();
 });
 
-/* actions */
 function acceptOrder(id){
   stopBell();
+  partOrderFlag[id]=false; // remove highlight
   db.collection("orders").doc(id).update({status:"accepted"});
 }
 function markDone(id){
   stopBell();
+  delete partOrderFlag[id];
   db.collection("orders").doc(id).update({status:"completed"});
-}
-function cancelOrder(id){
-  if(confirm("Cancel order?")){
-    stopBell();
-    db.collection("orders").doc(id).delete();
-  }
 }
 </script>
 
