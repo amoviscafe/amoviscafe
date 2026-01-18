@@ -308,7 +308,7 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 const list = document.getElementById("list");
 
-let currentTab="today";
+let currentTab = "today";
 
 /* 🔐 Auth */
 auth.onAuthStateChanged(user=>{
@@ -317,7 +317,7 @@ auth.onAuthStateChanged(user=>{
 
 /* 🍔 Emoji Detector */
 function foodEmoji(name){
-  name=name.toLowerCase();
+  name = (name || "").toLowerCase();
   if(name.includes("pizza")) return "🍕";
   if(name.includes("burger")) return "🍔";
   if(name.includes("sandwich")) return "🥪";
@@ -325,31 +325,45 @@ function foodEmoji(name){
   if(name.includes("ice")||name.includes("mastani")) return "🍨";
   if(name.includes("shake")) return "🥤";
   if(name.includes("coffee")||name.includes("tea")) return "☕";
-  if(name.includes("fries")) return "🍟";
-  if(name.includes("momos")) return "🥟";
   return "🍽️";
 }
 
-/* 📥 Load */
+/* 📥 Load Bookings (FIXED) */
 function loadBookings(){
   list.innerHTML="<tr><td colspan='9'>Loading...</td></tr>";
-  const today=new Date().toISOString().split("T")[0];
-  let q=db.collection("bookings");
-  if(currentTab==="today") q=q.where("date","==",today);
-  else q=q.where("date","<",today);
 
-  q.orderBy("date","desc").onSnapshot(snap=>{
-    list.innerHTML="";
-    snap.forEach(doc=>renderRow(doc.id,doc.data()));
-  });
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  db.collection("bookings")
+    .orderBy("createdAt","desc")
+    .onSnapshot(snap=>{
+      list.innerHTML="";
+      snap.forEach(doc=>{
+        const b = doc.data();
+
+        if(!b.createdAt) return;
+
+        const bookingDate =
+          b.createdAt.toDate().toISOString().split("T")[0];
+
+        if(currentTab==="today" && bookingDate!==todayStr) return;
+        if(currentTab==="history" && bookingDate===todayStr) return;
+
+        renderRow(doc.id,b,bookingDate);
+      });
+
+      if(!list.innerHTML){
+        list.innerHTML="<tr><td colspan='9'>No records</td></tr>";
+      }
+    });
 }
 
-/* 🧾 Render */
-function renderRow(id,b){
+/* 🧾 Render Row */
+function renderRow(id,b,bookingDate){
   let foodHTML="<div class='food-box'>";
   let total=0;
 
-  (b.foodItems||[]).forEach(f=>{
+  (b.foodItems || []).forEach(f=>{
     const price=f.price||0;
     const qty=f.qty||1;
     const line=price*qty;
@@ -363,30 +377,33 @@ function renderRow(id,b){
         <div class="food-total">₹${line}</div>
       </div>`;
   });
-
   foodHTML+="</div>";
 
-  let badge=`<span class="badge booked">BOOKED</span>`;
-  let action=`<button class="action-btn arrive-btn" onclick="updateStatus('${id}','ARRIVED')">Arrived</button>`;
+  const status = b.status || "BOOKED";
 
-  if(b.status==="ARRIVED"){
+  let badge=`<span class="badge booked">BOOKED</span>`;
+  let action=`<button class="action-btn arrive-btn"
+    onclick="updateStatus('${id}','ARRIVED')">Arrived</button>`;
+
+  if(status==="ARRIVED"){
     badge=`<span class="badge arrived">ARRIVED</span>`;
-    action=`<button class="action-btn complete-btn" onclick="updateStatus('${id}','COMPLETED')">Complete</button>`;
+    action=`<button class="action-btn complete-btn"
+      onclick="updateStatus('${id}','COMPLETED')">Complete</button>`;
   }
-  if(b.status==="COMPLETED"){
+  if(status==="COMPLETED"){
     badge=`<span class="badge completed">COMPLETED</span>`;
     action="-";
   }
 
   list.innerHTML+=`
     <tr>
-      <td>${b.name}</td>
-      <td>${b.mobile}</td>
-      <td>${b.date}</td>
-      <td>${b.timeSlot}</td>
-      <td>${b.people}</td>
+      <td>${b.name || "-"}</td>
+      <td>${b.mobile || "-"}</td>
+      <td>${bookingDate}</td>
+      <td>${b.timeSlot || "-"}</td>
+      <td>${b.people || "-"}</td>
       <td>${foodHTML}</td>
-      <td><b>₹${b.grandTotal || total}</b></td>
+      <td><b>₹${b.grandTotal || total || b.baseAmount || 0}</b></td>
       <td>${badge}</td>
       <td>${action}</td>
     </tr>`;
