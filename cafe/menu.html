@@ -13,8 +13,6 @@ body{
   font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#ff9966,#ff5e62);
 }
-
-/* HEADER */
 .header{
   background:linear-gradient(90deg,#2b1a14,#4b2c1f);
   color:#ffd966;
@@ -23,8 +21,6 @@ body{
   font-size:24px;
   font-weight:800;
 }
-
-/* CUSTOMER BAR */
 .customer-bar{
   background:#fff;
   padding:12px;
@@ -38,14 +34,10 @@ body{
   border:1px solid #ccc;
   font-size:15px;
 }
-
-/* CONTAINER */
 .container{
   padding:14px;
   padding-bottom:260px;
 }
-
-/* MENU */
 .menu{
   background:#2a1813;
   color:#fff;
@@ -77,8 +69,6 @@ body{
   border-radius:20px;
   cursor:pointer;
 }
-
-/* CART */
 .cart{
   position:fixed;
   bottom:0;
@@ -89,19 +79,12 @@ body{
   padding:14px;
   max-height:45vh;
   overflow:auto;
-  box-shadow:0 -6px 20px rgba(0,0,0,.3);
-}
-.cart h3{
-  text-align:center;
-  margin:0 0 6px;
 }
 .cart-item{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   padding:8px 0;
   border-bottom:1px dashed #ddd;
-  font-size:14px;
 }
 .qty-btn{
   width:30px;
@@ -127,8 +110,6 @@ body{
   color:#fff;
   font-size:18px;
 }
-
-/* POPUP */
 .modal{
   position:fixed;
   inset:0;
@@ -136,50 +117,12 @@ body{
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:999;
 }
 .modal-box{
   background:#fff;
   padding:26px;
   border-radius:20px;
   text-align:center;
-}
-
-/* 📱 RESPONSIVE FIXES */
-@media(max-width:768px){
-  .customer-bar{
-    grid-template-columns:1fr;
-  }
-  .header{
-    font-size:22px;
-  }
-  .container{
-    padding-bottom:300px;
-  }
-  .cart{
-    max-height:50vh;
-  }
-  .item button{
-    padding:8px 12px;
-    font-size:13px;
-  }
-}
-
-@media(max-width:480px){
-  .header{
-    font-size:20px;
-    padding:14px;
-  }
-  .menu{
-    padding:14px;
-  }
-  .cart{
-    padding:12px;
-    max-height:55vh;
-  }
-  .total{
-    font-size:18px;
-  }
 }
 </style>
 </head>
@@ -195,7 +138,6 @@ body{
 
 <div class="container">
 <div class="menu">
-
 <!-- ================= CADBEE ================= -->
 <div class="category">
 <h2>🍫 Cadbee</h2>
@@ -321,7 +263,6 @@ body{
 <div class="item"><span>Garlic Bread – ₹80</span><button onclick="addItem('Garlic Bread',80)">Add</button></div>
 <div class="item"><span>Cheese Garlic Bread – ₹100</span><button onclick="addItem('Cheese Garlic Bread',100)">Add</button></div>
 </div>
-
 </div>
 </div>
 
@@ -339,12 +280,10 @@ body{
   </div>
 </div>
 
-<!-- 🔥 FIREBASE + LOGIC (UNCHANGED) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ⚠️ COMPLETE LOGIC AS YOU PROVIDED – NOT TOUCHED */
 firebase.initializeApp({
   apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
   authDomain:"amovis-cafe-booking.firebaseapp.com",
@@ -356,6 +295,23 @@ const db=firebase.firestore();
 const params=new URLSearchParams(location.search);
 const orderType=params.get("type")||"direct";
 const orderNo=params.get("no")||"-";
+
+/* 🔑 AUTO-FILL NAME & MOBILE IF OPEN ORDER EXISTS */
+db.collection("orders")
+.where("type","==",orderType)
+.where("no","==",orderNo)
+.where("status","in",["new","accepted"])
+.limit(1)
+.get()
+.then(snap=>{
+  if(!snap.empty){
+    const d=snap.docs[0].data();
+    custName.value=d.customerName;
+    custMobile.value=d.customerMobile;
+    custName.disabled=true;
+    custMobile.disabled=true;
+  }
+});
 
 /* CART */
 let cartData={};
@@ -389,7 +345,7 @@ function render(){
   totalSpan.innerText=t;
 }
 
-/* ✅ PART ORDER MERGE – UNCHANGED */
+/* ✅ PART ORDER MERGE – SAME LOGIC */
 function placeOrder(){
   const name=custName.value.trim();
   const mobile=custMobile.value.trim();
