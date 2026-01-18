@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Amovis Cafe & Fast Food – Digital Menu</title>
+<title>Amovis Cafe – QR Digital Menu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -13,44 +13,50 @@ body{
   background:linear-gradient(135deg,#ff9966,#ff5e62);
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 .header{
   background:linear-gradient(90deg,#2b1a14,#4b2c1f);
   color:#ffd966;
   text-align:center;
-  padding:20px;
-  font-size:28px;
+  padding:18px;
+  font-size:26px;
   font-weight:bold;
-  letter-spacing:2px;
 }
 
-/* ===== LAYOUT ===== */
-.container{
+/* CUSTOMER BAR */
+.customer-bar{
+  background:#fff;
+  padding:14px;
   display:grid;
-  grid-template-columns:2.5fr 1fr;
-  gap:16px;
-  padding:16px;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
-@media(max-width:900px){
-  .container{grid-template-columns:1fr}
+.customer-bar input{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:15px;
 }
 
-/* ===== MENU ===== */
+/* LAYOUT */
+.container{
+  padding:16px;
+  padding-bottom:200px; /* space for cart */
+}
+
+/* MENU */
 .menu{
   background:#2a1813;
   color:#fff;
   border-radius:20px;
   padding:20px;
 }
-.category{
-  margin-bottom:30px;
-}
+.category{margin-bottom:30px}
 .category h2{
   text-align:center;
   color:#ffd966;
   border-bottom:2px solid #444;
   padding-bottom:6px;
-  margin-bottom:12px;
 }
 .item{
   display:flex;
@@ -59,69 +65,71 @@ body{
   padding:7px 0;
   border-bottom:1px dashed #444;
 }
-.item:last-child{border-bottom:none}
 .item button{
-  background:linear-gradient(135deg,#28a745,#20c997);
+  background:#28a745;
   border:none;
   color:#fff;
   padding:6px 14px;
   border-radius:20px;
   cursor:pointer;
-  font-size:13px;
 }
 
-/* ===== CART ===== */
+/* CART (BOTTOM FIXED) */
 .cart{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
   background:#fff;
-  border-radius:20px;
-  padding:16px;
+  border-top:4px solid #6a11cb;
+  padding:14px;
+  max-height:45vh;
+  overflow:auto;
 }
-.cart h3{text-align:center;margin-top:0}
+.cart h3{
+  margin:0 0 8px;
+  text-align:center;
+}
 .cart-item{
   display:flex;
   justify-content:space-between;
+  border-bottom:1px dashed #ddd;
+  padding:8px 0;
+}
+.qty-box{
+  display:flex;
   align-items:center;
-  margin:8px 0;
-  font-size:14px;
+  gap:6px;
 }
-.qty-box{display:flex;align-items:center;gap:6px}
 .qty-btn{
-  background:linear-gradient(135deg,#6a11cb,#2575fc);
-  border:none;
-  color:#fff;
-  width:26px;
-  height:26px;
+  width:28px;
+  height:28px;
   border-radius:50%;
-  cursor:pointer;
-}
-.qty{min-width:20px;text-align:center;font-weight:bold}
-.total{
-  font-size:18px;
-  font-weight:bold;
-  text-align:right;
-  margin-top:12px;
-}
-.place{
-  width:100%;
-  margin-top:14px;
-  padding:12px;
-  background:linear-gradient(90deg,#6a11cb,#2575fc);
-  color:#fff;
   border:none;
-  border-radius:30px;
+  background:#6a11cb;
+  color:#fff;
   font-size:16px;
   cursor:pointer;
 }
-
-/* ===== FOOTER ===== */
-.footer{
-  text-align:center;
+.total{
+  font-size:20px;
+  font-weight:bold;
+  text-align:right;
+  margin-top:10px;
+}
+.place{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  border:none;
+  border-radius:30px;
+  background:#2575fc;
   color:#fff;
-  font-size:12px;
-  padding:10px;
+  font-size:17px;
+  cursor:pointer;
 }
 
-/* ===== THANK YOU POPUP ===== */
+/* POPUP */
 .modal{
   position:fixed;
   inset:0;
@@ -129,53 +137,39 @@ body{
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:9999;
 }
 .modal-box{
   background:#fff;
-  width:320px;
-  border-radius:22px;
   padding:26px;
+  border-radius:20px;
   text-align:center;
-  animation:pop .4s ease;
-}
-@keyframes pop{
-  from{transform:scale(.7);opacity:0}
-  to{transform:scale(1);opacity:1}
 }
 .check{
   width:70px;height:70px;
   border-radius:50%;
   background:#22c55e;
   color:#fff;
+  font-size:36px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:36px;
   margin:0 auto 12px;
-}
-.modal-box h2{margin:6px 0;color:#111}
-.modal-box p{color:#374151;font-size:14px}
-.modal-box button{
-  margin-top:14px;
-  padding:10px 22px;
-  border:none;
-  border-radius:20px;
-  background:linear-gradient(90deg,#6a11cb,#2575fc);
-  color:#fff;
-  font-weight:600;
-  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">☕ Amovis Cafe & Fast Food – QR Digital Menu</div>
+<div class="header">☕ Amovis Cafe – QR Digital Menu</div>
+
+<!-- CUSTOMER DETAILS -->
+<div class="customer-bar">
+  <input id="custName" placeholder="Customer Name">
+  <input id="custMobile" placeholder="Mobile Number (10 digit)">
+</div>
 
 <div class="container">
 
-<!-- ================= MENU ================= -->
 <div class="menu">
 
 <!-- ================= CADBEE ================= -->
@@ -305,40 +299,26 @@ body{
 </div>
 
 </div>
+</div>
 
-<!-- ================= CART ================= -->
+<!-- CART -->
 <div class="cart">
 <h3>🛒 Your Cart</h3>
-<div id="cart"></div>
+<div id="cartDiv"></div>
 <div class="total">Total ₹ <span id="total">0</span></div>
 <button class="place" onclick="placeOrder()">PLACE ORDER</button>
 </div>
 
-</div>
-
-<!-- ================= CART ================= -->
-<div class="cart">
-<h3>🛒 Your Cart</h3>
-<div id="cart"></div>
-<div class="total">Total ₹ <span id="total">0</span></div>
-<button class="place" onclick="placeOrder()">PLACE ORDER</button>
-</div>
-
-</div>
-
-<div class="footer">Amovis Cafe & Fast Food – Smart Ordering System</div>
-
-<!-- ===== THANK YOU POPUP ===== -->
+<!-- POPUP -->
 <div id="popup" class="modal">
   <div class="modal-box">
     <div class="check">✔</div>
-    <h2>Thank You 😊</h2>
-    <p>Your order has been placed successfully</p>
-    <button onclick="closePopup()">OK</button>
+    <h2>Order Placed 😊</h2>
+    <p>Bill will be sent on mobile</p>
   </div>
 </div>
 
-<!-- ================= FIREBASE ================= -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -350,68 +330,72 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-/* 🔥 READ QR DATA (FIX) */
-const params = new URLSearchParams(window.location.search);
-const orderType = params.get("type") || "direct";
-const orderNo   = params.get("no") || "-";
+/* QR DATA */
+const params=new URLSearchParams(location.search);
+const orderType=params.get("type")||"direct";
+const orderNo=params.get("no")||"-";
 
-let cart={};
+/* CART DATA */
+let cartData={};
+const cartDiv=document.getElementById("cartDiv");
+const totalSpan=document.getElementById("total");
 
 function addItem(name,price){
-  if(cart[name]) cart[name].qty++;
-  else cart[name]={price:price,qty:1};
+  cartData[name]?cartData[name].qty++:cartData[name]={price,qty:1};
   render();
 }
 function changeQty(name,delta){
-  cart[name].qty+=delta;
-  if(cart[name].qty<=0) delete cart[name];
+  cartData[name].qty+=delta;
+  if(cartData[name].qty<=0) delete cartData[name];
   render();
 }
 function render(){
-  const cartDiv=document.getElementById("cart");
-  const totalSpan=document.getElementById("total");
   cartDiv.innerHTML="";
   let total=0;
-  for(let name in cart){
-    let i=cart[name];
-    total+=i.price*i.qty;
+  for(let n in cartData){
+    let i=cartData[n],t=i.price*i.qty;
+    total+=t;
     cartDiv.innerHTML+=`
-    <div class="cart-item">
-      <span>${name} ₹${i.price}</span>
-      <div class="qty-box">
-        <button class="qty-btn" onclick="changeQty('${name}',-1)">−</button>
-        <span class="qty">${i.qty}</span>
-        <button class="qty-btn" onclick="changeQty('${name}',1)">+</button>
-      </div>
-    </div>`;
+      <div class="cart-item">
+        <span>${n}<br>₹${i.price} × ${i.qty} = ₹${t}</span>
+        <div class="qty-box">
+          <button class="qty-btn" onclick="changeQty('${n}',-1)">−</button>
+          <span>${i.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${n}',1)">+</button>
+        </div>
+      </div>`;
   }
   totalSpan.innerText=total;
 }
 
 function placeOrder(){
-  if(Object.keys(cart).length===0){
+  const name=custName.value.trim();
+  const mobile=custMobile.value.trim();
+
+  if(!name){alert("Enter customer name");return;}
+  if(!/^[6-9]\d{9}$/.test(mobile)){
+    alert("Enter valid 10 digit mobile number");
+    return;
+  }
+  if(!Object.keys(cartData).length){
     alert("Cart Empty");
     return;
   }
+
   db.collection("orders").add({
-    items:cart,
-    total:document.getElementById("total").innerText,
+    customerName:name,
+    customerMobile:mobile,
+    items:cartData,
+    total:totalSpan.innerText,
     status:"new",
-
-    /* 🔥 FIXED DATA */
-    type: orderType,
-    no: orderNo,
-
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    type:orderType,
+    no:orderNo,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
   }).then(()=>{
-    cart={};
-    render();
-    document.getElementById("popup").style.display="flex";
-    setTimeout(closePopup,2500);
+    cartData={};render();
+    popup.style.display="flex";
+    setTimeout(()=>popup.style.display="none",2500);
   });
-}
-function closePopup(){
-  document.getElementById("popup").style.display="none";
 }
 </script>
 
