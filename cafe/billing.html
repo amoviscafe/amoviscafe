@@ -5,6 +5,8 @@
 <title>Amovis Cafe – Billing Counter</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -13,272 +15,328 @@ body{
   background:linear-gradient(135deg,#141e30,#243b55);
   color:#fff;
 }
-
-/* HEADER */
 .header{
   background:linear-gradient(90deg,#f7971e,#ffd200);
   color:#000;
-  padding:20px;
+  padding:14px;
   text-align:center;
-  font-size:30px;
+  font-size:24px;
   font-weight:900;
-  letter-spacing:2px;
 }
-
-/* LAYOUT */
 .container{
-  max-width:1200px;
+  max-width:1100px;
   margin:auto;
-  padding:20px;
+  padding:14px;
 }
-
-/* BILL CARD */
 .bill-card{
-  background:linear-gradient(135deg,#1f1f1f,#2d2d2d);
-  border-radius:22px;
-  padding:22px;
-  margin-bottom:26px;
-  box-shadow:0 12px 28px rgba(0,0,0,.5);
+  background:#1f1f1f;
+  border-radius:20px;
+  padding:16px;
+  margin-bottom:22px;
+  box-shadow:0 10px 25px rgba(0,0,0,.6);
   position:relative;
 }
-
-/* PLACE BADGE */
 .place-badge{
   position:absolute;
-  top:-20px;
+  top:-14px;
   left:50%;
   transform:translateX(-50%);
   background:linear-gradient(90deg,#7f00ff,#e100ff);
-  padding:12px 34px;
-  border-radius:40px;
-  font-size:26px;
+  padding:6px 22px;
+  border-radius:24px;
+  font-size:16px;
   font-weight:900;
-  letter-spacing:2px;
-  text-transform:uppercase;
 }
-
-/* BILL HEAD */
-.bill-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:28px;
+.customer{
+  margin-top:22px;
+  background:#0f172a;
+  padding:10px;
+  border-radius:12px;
+  text-align:center;
 }
-.bill-id{
+.customer .name{
   font-size:18px;
-  color:#ffeb3b;
-  font-weight:800;
+  font-weight:900;
+  color:#38bdf8;
 }
-.bill-time{
-  font-size:12px;
-  color:#ccc;
+.customer .mobile{
+  font-size:14px;
+  color:#a5f3fc;
 }
-
-/* ITEMS */
-.items{margin-top:14px}
 .item{
   display:grid;
   grid-template-columns:1fr auto auto;
-  gap:10px;
-  padding:8px 0;
+  gap:8px;
+  padding:6px 0;
   border-bottom:1px dashed #444;
-  font-size:15px;
-  align-items:center;
+  font-size:14px;
 }
-.price{color:#00e676;font-weight:700}
-.del{
-  background:#ff5252;
-  border:none;
-  border-radius:50%;
-  width:26px;
-  height:26px;
-  color:#fff;
+.item.manual-item{
+  background:linear-gradient(90deg,#6d28d9,#9333ea);
+  padding:6px;
+  border-radius:8px;
   font-weight:900;
+}
+.price{color:#22c55e;font-weight:900}
+.del{
+  width:22px;height:22px;
+  border-radius:50%;
+  border:none;
+  background:#ef4444;
+  color:#fff;
   cursor:pointer;
 }
-
-/* MANUAL ADD */
-.manual-box{
-  margin-top:16px;
-  padding:14px;
-  background:#121212;
-  border-radius:14px;
+.manual{
+  margin-top:10px;
+  background:#111;
+  padding:10px;
+  border-radius:12px;
 }
 .manual-title{
-  color:#00e5ff;
-  font-weight:bold;
-  margin-bottom:8px;
+  color:#22d3ee;
+  font-weight:800;
+  margin-bottom:6px;
 }
 .manual-row{
   display:grid;
   grid-template-columns:2fr 1fr 1fr;
-  gap:8px;
+  gap:6px;
 }
 .manual-row input{
-  padding:8px;
-  border-radius:8px;
+  padding:6px;
+  border-radius:6px;
   border:none;
 }
 .add-btn{
-  margin-top:10px;
+  margin-top:8px;
   width:100%;
-  padding:10px;
+  padding:8px;
   border:none;
-  border-radius:20px;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
-  color:#fff;
-  font-weight:800;
-  cursor:pointer;
+  border-radius:14px;
+  background:#00c6ff;
+  font-weight:900;
 }
-
-/* TOTAL */
 .total{
   text-align:right;
-  font-size:24px;
+  font-size:20px;
   font-weight:900;
-  color:#00e676;
-  margin-top:16px;
+  color:#22c55e;
+  margin-top:10px;
 }
-
-/* PAY */
-.pay-btn{
-  width:100%;
-  margin-top:16px;
-  padding:14px;
-  font-size:18px;
-  font-weight:900;
+.actions{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.btn{
+  padding:9px;
   border:none;
-  border-radius:30px;
+  border-radius:18px;
+  font-size:13px;
+  font-weight:900;
   cursor:pointer;
-  background:linear-gradient(90deg,#00c853,#b2ff59);
-  color:#000;
 }
-
-/* EMPTY */
+.qrbtn{background:#0ea5e9}
+.imgbtn{background:#f97316}
+.whatsapp{background:#22c55e}
+.pay{background:#fde047;color:#000}
+.qr-box{
+  margin-top:10px;
+  background:#fff;
+  padding:10px;
+  border-radius:12px;
+  display:none;
+  text-align:center;
+}
 .empty{
   text-align:center;
-  font-size:22px;
+  font-size:18px;
   color:#ccc;
-  margin-top:80px;
+  margin-top:60px;
 }
+canvas{display:none}
 </style>
 </head>
 
 <body>
 
-<div class="header">💳 AMOVIS CAFE – BILLING COUNTER</div>
+<div class="header">💳 AMOVIS CAFE – BILLING</div>
 
 <div class="container">
-  <div id="bills" class="empty">Waiting for completed orders...</div>
+  <div id="bills" class="empty">⌛ Waiting for bills…</div>
 </div>
+
+<canvas id="billCanvas"></canvas>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 firebase.initializeApp({
-  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
-  authDomain: "amovis-cafe-booking.firebaseapp.com",
-  projectId: "amovis-cafe-booking"
+  apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain:"amovis-cafe-booking.firebaseapp.com",
+  projectId:"amovis-cafe-booking"
 });
+const db=firebase.firestore();
+const billsDiv=document.getElementById("bills");
 
-const db = firebase.firestore();
-const billsDiv = document.getElementById("bills");
+const OWNER_UPI="amoviscafe@upi";
+const OWNER_NAME="Amovis Cafe";
 
-/* LOAD COMPLETED ORDERS */
-db.collection("orders")
-.where("status","==","completed")
+/* LOAD BILLS */
+db.collection("orders").where("status","==","completed")
 .onSnapshot(snapshot=>{
   billsDiv.innerHTML="";
-
   if(snapshot.empty){
-    billsDiv.innerHTML='<div class="empty">No bills</div>';
-    return;
+    billsDiv.innerHTML='<div class="empty">No Bills</div>';return;
   }
 
   snapshot.forEach(doc=>{
-    const d = doc.data();
+    const d=doc.data();
+    const place=d.type&&d.no?`${d.type.toUpperCase()} ${d.no}`:"DIRECT";
 
-    let place = "DIRECT";
-    if(d.type && d.no) place = `${d.type} ${d.no}`;
+    let itemsHTML="",waText="",total=0;
 
-    let itemsHTML="";
-    let total=0;
-
-    for(let name in d.items){
-      const i=d.items[name];
+    for(let n in d.items){
+      const i=d.items[n];
       const amt=i.price*i.qty;
       total+=amt;
 
+      const manualClass=i.addedBy==="billing"?"manual-item":"";
+
       itemsHTML+=`
-        <div class="item">
-          <span>${name}</span>
-          <span class="price">₹${amt}</span>
-          <button class="del" onclick="removeItem('${doc.id}','${name}')">×</button>
-        </div>`;
+      <div class="item ${manualClass}">
+        <span>${n} × ${i.qty}</span>
+        <span class="price">₹${amt}</span>
+        <button class="del" onclick="removeItem('${doc.id}','${n}')">×</button>
+      </div>`;
+
+      waText+=`• ${n} x${i.qty} = ₹${amt}\n`;
     }
 
+    const waBill=
+`☕ AMOVIS CAFE
+---------------------
+👤 ${d.customerName}
+📞 ${d.customerMobile}
+📍 ${place}
+
+${waText}
+---------------------
+💰 TOTAL ₹${total}
+
+Scan QR to pay
+Thank you 😊`;
+
     billsDiv.innerHTML+=`
-      <div class="bill-card">
-        <div class="place-badge">${place}</div>
+    <div class="bill-card">
+      <div class="place-badge">${place}</div>
 
-        <div class="bill-head">
-          <div class="bill-id">ORDER ${doc.id.substring(0,6).toUpperCase()}</div>
-          <div class="bill-time">${d.time?.seconds?new Date(d.time.seconds*1000).toLocaleString():""}</div>
+      <div class="customer">
+        <div class="name">👤 ${d.customerName}</div>
+        <div class="mobile">📞 ${d.customerMobile}</div>
+      </div>
+
+      ${itemsHTML}
+
+      <div class="manual">
+        <div class="manual-title">➕ Manual Item</div>
+        <div class="manual-row">
+          <input id="n-${doc.id}" placeholder="Item">
+          <input id="p-${doc.id}" type="number" placeholder="Price">
+          <input id="q-${doc.id}" type="number" value="1">
         </div>
+        <button class="add-btn" onclick="addManual('${doc.id}')">ADD</button>
+      </div>
 
-        <div class="items">${itemsHTML}</div>
+      <div class="total">TOTAL ₹ ${total}</div>
 
-        <div class="manual-box">
-          <div class="manual-title">➕ Add Manual Item</div>
-          <div class="manual-row">
-            <input placeholder="Item name" id="n-${doc.id}">
-            <input type="number" placeholder="Price" id="p-${doc.id}">
-            <input type="number" placeholder="Qty" value="1" id="q-${doc.id}">
-          </div>
-          <button class="add-btn" onclick="addManual('${doc.id}')">ADD ITEM</button>
-        </div>
+      <div class="actions">
+        <button class="btn qrbtn" onclick="generateQR('${doc.id}',${total})">📷 QR</button>
+        <button class="btn imgbtn" onclick="downloadBillImage('${d.customerName}','${d.customerMobile}',\`${waText}\`,${total})">🖼 BILL</button>
+        <button class="btn whatsapp" onclick="sendWhatsApp('${d.customerMobile}',\`${waBill}\`)">💬 WhatsApp</button>
+        <button class="btn pay" onclick="markPaid('${doc.id}')">✅ DONE</button>
+      </div>
 
-        <div class="total">₹ ${total}</div>
-
-        <button class="pay-btn" onclick="markPaid('${doc.id}')">
-          💰 PAYMENT DONE
-        </button>
-      </div>`;
+      <div class="qr-box" id="qr-${doc.id}"></div>
+    </div>`;
   });
 });
 
-/* ADD MANUAL */
+/* MANUAL ADD */
 function addManual(id){
   const n=document.getElementById(`n-${id}`).value;
   const p=Number(document.getElementById(`p-${id}`).value);
   const q=Number(document.getElementById(`q-${id}`).value);
-
-  if(!n||p<=0||q<=0){alert("Invalid item");return;}
+  if(!n||p<=0||q<=0)return;
 
   db.collection("orders").doc(id).update({
     [`items.${n}`]:{price:p,qty:q,addedBy:"billing"}
   });
 }
 
-/* REMOVE ITEM */
-function removeItem(id,name){
+/* REMOVE */
+function removeItem(id,n){
   if(confirm("Remove item?")){
     db.collection("orders").doc(id).update({
-      [`items.${name}`]:firebase.firestore.FieldValue.delete()
+      [`items.${n}`]:firebase.firestore.FieldValue.delete()
     });
   }
 }
 
-/* PAYMENT DONE */
+/* QR */
+function generateQR(id,total){
+  const box=document.getElementById(`qr-${id}`);
+  box.innerHTML="";
+  box.style.display="block";
+  new QRCode(box,{
+    text:`upi://pay?pa=${OWNER_UPI}&pn=${OWNER_NAME}&am=${total}&cu=INR`,
+    width:120,height:120
+  });
+}
+
+/* BILL IMAGE */
+function downloadBillImage(name,mobile,items,total){
+  const c=document.getElementById("billCanvas");
+  const x=c.getContext("2d");
+  c.width=420;c.height=650;
+
+  const g=x.createLinearGradient(0,0,0,650);
+  g.addColorStop(0,"#7c3aed");
+  g.addColorStop(1,"#ec4899");
+  x.fillStyle=g;
+  x.fillRect(0,0,420,650);
+
+  x.fillStyle="#fff";
+  x.font="bold 22px Arial";
+  x.fillText("AMOVIS CAFE",90,35);
+  x.font="14px Arial";
+  x.fillText("Name: "+name,20,70);
+  x.fillText("Mobile: "+mobile,20,90);
+
+  let y=130;
+  items.split("\n").forEach(l=>{
+    x.fillText(l,20,y);y+=18;
+  });
+
+  x.font="bold 18px Arial";
+  x.fillText("TOTAL ₹ "+total,20,y+20);
+
+  const link=document.createElement("a");
+  link.download="Amovis_Bill.png";
+  link.href=c.toDataURL();
+  link.click();
+}
+
+/* WHATSAPP */
+function sendWhatsApp(m,msg){
+  window.open(`https://wa.me/91${m}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+/* DONE */
 function markPaid(id){
-  if(confirm("Confirm payment?")){
-    db.collection("orders").doc(id).update({
-      status:"COMPLETED",
-      paymentMode:"Cash",
-      completedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
+  alert("Payment completed & moved to history");
 }
 </script>
 
