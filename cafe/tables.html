@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Tables & QR – Cafe Control Center</title>
+<title>Tables & QR – Amovis Cafe</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- GOOGLE FONT -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- GOOGLE FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
 
-<!-- QR LIBRARY -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- QR LIB -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
-/* ================= RESET ================= */
 *{
   margin:0;
   padding:0;
@@ -20,116 +19,122 @@
   font-family:'Poppins',sans-serif;
 }
 
-/* ================= BODY ================= */
 body{
   min-height:100vh;
-  background:linear-gradient(135deg,#ede9fe,#fce7f3);
+  background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  color:#fff;
+}
+
+/* HEADER */
+header{
+  padding:22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(14px);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brand img{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+}
+
+.brand h1{
+  font-size:20px;
+  font-weight:800;
+}
+
+.back{
+  background:#fff;
+  color:#111;
+  padding:10px 18px;
+  border-radius:20px;
+  text-decoration:none;
+  font-weight:600;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1200px;
+  margin:40px auto;
   padding:20px;
 }
 
-/* ================= HEADER ================= */
-header{
-  background:linear-gradient(90deg,#6d28d9,#7c3aed,#ec4899);
-  color:#fff;
-  padding:18px 24px;
-  border-radius:22px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  box-shadow:0 18px 40px rgba(0,0,0,.35);
+.section{
+  margin-bottom:70px;
 }
 
-header h2{
-  font-size:22px;
+.section h2{
+  font-size:26px;
   font-weight:800;
+  margin-bottom:22px;
 }
 
-header span{
-  font-size:13px;
-  opacity:.9;
-}
-
-/* ================= GRID ================= */
-.container{
-  max-width:1200px;
-  margin:30px auto;
-}
-
+/* GRID */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:22px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:26px;
 }
 
-/* ================= TABLE CARD ================= */
+/* CARD */
 .card{
-  background:#fff;
-  border-radius:24px;
-  padding:18px;
-  box-shadow:0 20px 45px rgba(0,0,0,.25);
+  background:rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:22px;
   text-align:center;
-  transition:.3s;
-}
-
-.card:hover{
-  transform:translateY(-6px);
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
+  backdrop-filter:blur(14px);
 }
 
 .card h3{
+  font-family:'Pacifico',cursive;
+  font-size:22px;
   margin-bottom:10px;
-  color:#4c1d95;
+}
+
+.card .slot{
+  font-size:18px;
   font-weight:800;
+  letter-spacing:2px;
+  margin-bottom:12px;
 }
 
-.qr-box{
-  background:linear-gradient(135deg,#7c3aed,#ec4899);
-  padding:14px;
-  border-radius:18px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin:12px 0;
-}
-
-.qr-inner{
+/* QR */
+.qr{
   background:#fff;
-  padding:10px;
-  border-radius:14px;
+  padding:14px;
+  border-radius:20px;
+  display:inline-block;
+  margin-bottom:14px;
 }
 
-/* ================= BUTTON ================= */
-button{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(90deg,#16a34a,#22c55e);
+/* BUTTON */
+.btn{
+  background:linear-gradient(90deg,#7c3aed,#ec4899);
   color:#fff;
+  border:none;
+  padding:10px 22px;
+  border-radius:22px;
   font-weight:700;
   cursor:pointer;
-  font-size:14px;
-  margin-top:8px;
 }
 
-button:hover{
-  opacity:.9;
-}
-
-/* ================= FOOTER TEXT ================= */
-.note{
+/* FOOTER */
+footer{
+  margin-top:80px;
+  padding:24px;
   text-align:center;
-  margin-top:24px;
   font-size:13px;
-  color:#6b7280;
-}
-
-/* ================= MOBILE ================= */
-@media(max-width:600px){
-  header{
-    flex-direction:column;
-    gap:8px;
-    text-align:center;
-  }
+  opacity:.85;
 }
 </style>
 </head>
@@ -137,24 +142,132 @@ button:hover{
 <body>
 
 <header>
-  <div>
-    <h2>🔳 Tables & QR System</h2>
-    <span>Amovi's Cafe & Fast Food</span>
+  <div class="brand">
+    <img src="../assets/logo.png">
+    <h1>Amovis Cafe – QR Control</h1>
   </div>
-  <div>15 Tables • Scan to Order</div>
+  <a class="back" href="../dashboard.html">← Dashboard</a>
 </header>
 
 <div class="container">
-  <div class="grid" id="tableGrid"></div>
 
-  <div class="note">
-    📌 Print QR and paste on respective tables<br>
-    Each QR is unique & table-linked
+  <!-- HALLS -->
+  <div class="section">
+    <h2>🎉 Halls</h2>
+    <div class="grid" id="halls"></div>
   </div>
+
+  <!-- TABLES -->
+  <div class="section">
+    <h2>🍽️ Tables</h2>
+    <div class="grid" id="tables"></div>
+  </div>
+
+  <!-- PARCEL -->
+  <div class="section">
+    <h2>📦 Parcel Orders</h2>
+    <div class="grid" id="parcel"></div>
+  </div>
+
 </div>
 
-<!-- TABLE SCRIPT -->
-<script src="js/tables.js"></script>
+<footer>
+© 2026 Amovis Cafe & Fast Food · QR Ordering & Booking System
+</footer>
+
+<script>
+const MENU_URL =
+"https://amoviscafe.github.io/amoviscafe/cafe/menu.html";
+
+function createCard(parent,type,no){
+  const id=`${type}${no}`;
+  const card=document.createElement("div");
+  card.className="card";
+
+  card.innerHTML=`
+    <h3>Amovis Cafe & Fast Food</h3>
+    <div class="slot">${type.toUpperCase()} ${no}</div>
+    <div class="qr" id="qr-${id}"></div>
+    <button class="btn" onclick="downloadQR('${type}',${no})">
+      Download Premium QR
+    </button>
+  `;
+
+  parent.appendChild(card);
+
+  new QRCode(document.getElementById(`qr-${id}`),{
+    text:`${MENU_URL}?type=${type}&no=${no}`,
+    width:160,
+    height:160,
+    colorDark:"#7c3aed",
+    colorLight:"#ffffff"
+  });
+}
+
+/* CREATE ALL */
+for(let i=1;i<=2;i++) createCard(halls,"Hall",i);
+for(let i=1;i<=12;i++) createCard(tables,"Table",i);
+for(let i=1;i<=4;i++) createCard(parcel,"Parcel",i);
+
+/* DOWNLOAD PREMIUM IMAGE */
+function downloadQR(type,no){
+  const canvas=document.createElement("canvas");
+  canvas.width=420;
+  canvas.height=600;
+  const ctx=canvas.getContext("2d");
+
+  /* BG */
+  ctx.fillStyle="#ffffff";
+  ctx.fillRect(0,0,420,600);
+
+  /* TITLE */
+  ctx.fillStyle="#111";
+  ctx.font="34px Pacifico";
+  ctx.textAlign="center";
+  ctx.fillText("Amovis Cafe & Fast Food",210,55);
+
+  /* SLOT */
+  ctx.font="bold 26px Poppins";
+  ctx.fillText(`${type.toUpperCase()} ${no}`,210,100);
+
+  /* QR */
+  const qrCanvas=document.querySelector(
+    `#qr-${type}${no} canvas`
+  );
+  ctx.drawImage(qrCanvas,110,130,200,200);
+
+  /* TEXT */
+  ctx.font="14px Poppins";
+  ctx.fillText("Scan to view menu & place order",210,365);
+
+  ctx.font="bold 15px Poppins";
+  ctx.fillText("🎂 Online Birthday & Mini Theater Booking 🎬",210,410);
+
+  ctx.font="13px Poppins";
+  ctx.fillText("Book slots online for celebrations",210,435);
+
+  ctx.fillStyle="#7c3aed";
+  ctx.font="bold 12px Poppins";
+  ctx.fillText(
+    "https://amoviscafe.github.io/amoviscafe/index.html",
+    210,
+    470
+  );
+
+  ctx.fillStyle="#444";
+  ctx.font="11px Poppins";
+  ctx.fillText(
+    "Note: You can book birthday, hall & mini theater slots here",
+    210,
+    500
+  );
+
+  const link=document.createElement("a");
+  link.download=`Amovis-${type}-${no}.png`;
+  link.href=canvas.toDataURL();
+  link.click();
+}
+</script>
 
 </body>
 </html>
