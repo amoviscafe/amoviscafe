@@ -44,8 +44,15 @@ body{
   font-size:28px;
   font-weight:900;
 }
+.order-no{
+  text-align:center;
+  margin-top:20px;
+  font-size:20px;
+  font-weight:900;
+  color:#00e5ff;
+}
 .customer{
-  margin-top:36px;
+  margin-top:10px;
   text-align:center;
   font-size:18px;
   font-weight:700;
@@ -72,9 +79,18 @@ body{
 }
 .actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:14px;
   margin-top:20px;
+}
+.accept-btn{
+  padding:16px;
+  border:none;
+  border-radius:40px;
+  font-size:18px;
+  font-weight:800;
+  background:linear-gradient(90deg,#facc15,#f97316);
+  color:#000;
 }
 .done-btn{
   padding:16px;
@@ -105,11 +121,12 @@ body{
 <body>
 
 <div class="header">🍳 AMOVIS CAFE – KITCHEN</div>
+
 <div class="container">
-  <div id="orders" class="empty">Waiting for orders...</div>
+  <div id="orders" class="empty">Tap once to enable sound 🔊</div>
 </div>
 
-<audio id="orderSound" src="assets/order.mp3"></audio>
+<audio id="orderSound" src="assets/order.mp3" preload="auto" loop></audio>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -125,64 +142,53 @@ const db = firebase.firestore();
 const ordersDiv = document.getElementById("orders");
 const sound = document.getElementById("orderSound");
 
-let firstLoad = true;
+let soundEnabled=false;
 
-/* LISTENER */
+/* unlock sound */
+document.body.addEventListener("click",()=>{
+  if(!soundEnabled){
+    sound.play().then(()=>{
+      sound.pause();
+      sound.currentTime=0;
+      soundEnabled=true;
+    });
+  }
+},{once:true});
+
+/* ✅ WORKING QUERY (NO orderBy issue) */
 db.collection("orders")
-.where("status","==","new")
+.where("status","in",["new","accepted"])
 .onSnapshot(snapshot=>{
-
-  /* 🔔 SOUND ONLY FOR NEW ORDERS */
-  snapshot.docChanges().forEach(change=>{
-    if(change.type === "added" && !firstLoad){
-      sound.currentTime = 0;
-      sound.play();
-    }
-  });
-  firstLoad = false;
 
   ordersDiv.innerHTML="";
 
   if(snapshot.empty){
+    sound.pause();
+    sound.currentTime=0;
     ordersDiv.innerHTML='<div class="empty">No Active Orders</div>';
     return;
   }
 
-  /* 🔗 MERGE SAME TABLE ORDERS */
-  const merged = {};
+  /* 🔔 bell logic */
+  const hasNew = snapshot.docs.some(d=>d.data().status==="new");
+  if(hasNew && soundEnabled){
+    sound.play();
+  }else{
+    sound.pause();
+    sound.currentTime=0;
+  }
+
+  let orderNo=1;
 
   snapshot.docs.forEach(doc=>{
-    const d = doc.data();
-    const key = d.type && d.no ? `${d.type}-${d.no}` : doc.id;
+    const d=doc.data();
+    const place=d.type&&d.no?`${d.type} ${d.no}`:"DIRECT";
 
-    if(!merged[key]){
-      merged[key] = {
-        id: doc.id,
-        place: d.type && d.no ? `${d.type} ${d.no}` : "DIRECT",
-        customer: d.customerName,
-        mobile: d.customerMobile,
-        items:{}
-      };
-    }
-
-    for(let item in d.items){
-      if(!merged[key].items[item]){
-        merged[key].items[item] = {...d.items[item]};
-      }else{
-        merged[key].items[item].qty += d.items[item].qty;
-      }
-    }
-  });
-
-  /* FIFO DISPLAY */
-  Object.values(merged).forEach(order=>{
-    let itemsHTML="", total=0;
-
-    for(let name in order.items){
-      const it = order.items[name];
-      const amt = it.price * it.qty;
-      total += amt;
-
+    let itemsHTML="",total=0;
+    for(let name in d.items){
+      const it=d.items[name];
+      const amt=it.price*it.qty;
+      total+=amt;
       itemsHTML+=`
         <div class="item">
           <div>${name} × ${it.qty}</div>
@@ -192,33 +198,41 @@ db.collection("orders")
 
     ordersDiv.innerHTML+=`
       <div class="order-card">
-        <div class="place-badge">${order.place}</div>
+        <div class="place-badge">${place}</div>
+        <div class="order-no">ORDER #${orderNo++}</div>
 
         <div class="customer">
-          ${order.customer || "Guest"}
-          <span>📞 ${order.mobile || "-"}</span>
+          ${d.customerName||"Guest"}
+          <span>📞 ${d.customerMobile||"-"}</span>
         </div>
 
         <div class="items">${itemsHTML}</div>
         <div class="total">₹ ${total}</div>
 
         <div class="actions">
-          <button class="done-btn" onclick="markDone('${order.id}')">✔ ORDER READY</button>
-          <button class="cancel-btn" onclick="cancelOrder('${order.id}')">✖ CANCEL</button>
+          ${
+            d.status==="new"
+            ? `<button class="accept-btn" onclick="acceptOrder('${doc.id}')">🟡 ACCEPT</button>`
+            : `<button class="accept-btn" disabled>ACCEPTED</button>`
+          }
+          <button class="done-btn" onclick="markDone('${doc.id}')">✔ READY</button>
+          <button class="cancel-btn" onclick="cancelOrder('${doc.id}')">✖ CANCEL</button>
         </div>
       </div>
     `;
   });
 });
 
-/* DONE */
+function acceptOrder(id){
+  db.collection("orders").doc(id).update({status:"accepted"});
+}
 function markDone(id){
   db.collection("orders").doc(id).update({status:"completed"});
 }
-
-/* CANCEL */
 function cancelOrder(id){
-  db.collection("orders").doc(id).delete();
+  if(confirm("Cancel order?")){
+    db.collection("orders").doc(id).delete();
+  }
 }
 </script>
 
