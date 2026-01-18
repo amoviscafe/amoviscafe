@@ -5,14 +5,11 @@
 <title>Amovis Cafe – Kitchen Screen</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
-  font-family:'Poppins',sans-serif;
+  font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
 }
@@ -20,11 +17,11 @@ body{
 /* HEADER */
 .header{
   background:linear-gradient(90deg,#ff512f,#dd2476);
-  padding:22px;
+  padding:20px;
   text-align:center;
-  font-size:26px;
-  font-weight:800;
-  letter-spacing:1px;
+  font-size:30px;
+  font-weight:900;
+  letter-spacing:2px;
 }
 
 /* CONTAINER */
@@ -37,72 +34,91 @@ body{
 /* ORDER CARD */
 .order-card{
   background:linear-gradient(135deg,#1e1e1e,#2c2c2c);
-  border-radius:20px;
-  padding:18px;
-  margin-bottom:22px;
-  border-left:6px solid #ff9800;
-  box-shadow:0 18px 45px rgba(0,0,0,.6);
+  border-radius:22px;
+  padding:22px;
+  margin-bottom:28px;
+  box-shadow:0 15px 40px rgba(0,0,0,.6);
+  position:relative;
 }
 
-/* HEAD */
-.order-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
+/* PLACE BADGE (BIG CENTER) */
+.place-badge{
+  position:absolute;
+  top:-22px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,#7f00ff,#e100ff);
+  padding:12px 34px;
+  border-radius:40px;
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
 }
 
+/* ORDER ID */
 .order-id{
+  text-align:center;
+  font-size:14px;
   color:#ffcc80;
-  font-size:13px;
-}
-
-/* LOCATION TAG */
-.location{
-  padding:6px 14px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:700;
-  background:linear-gradient(90deg,#7c3aed,#ec4899);
+  margin-top:26px;
 }
 
 /* ITEMS */
-.items{margin:14px 0}
-
+.items{
+  margin:18px 0;
+}
 .item{
   display:flex;
   justify-content:space-between;
+  padding:8px 0;
   border-bottom:1px dashed #444;
-  padding:6px 0;
-  font-size:15px;
+  font-size:17px;
 }
+.item:last-child{border-bottom:none}
 
 /* TOTAL */
 .total{
   text-align:right;
-  font-size:18px;
+  font-size:22px;
+  font-weight:900;
   color:#4caf50;
-  font-weight:800;
+  margin-top:14px;
 }
 
-/* DONE BUTTON */
+/* ACTIONS */
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:18px;
+}
 .done-btn{
-  width:100%;
-  margin-top:14px;
-  padding:12px;
+  padding:14px;
   border:none;
-  border-radius:30px;
-  background:linear-gradient(90deg,#00b09b,#96c93d);
-  font-size:16px;
-  font-weight:700;
+  border-radius:34px;
+  font-size:17px;
+  font-weight:800;
   cursor:pointer;
+  background:linear-gradient(90deg,#00b09b,#96c93d);
+}
+.cancel-btn{
+  padding:14px;
+  border:none;
+  border-radius:34px;
+  font-size:17px;
+  font-weight:800;
+  cursor:pointer;
+  background:linear-gradient(90deg,#ff416c,#ff4b2b);
+  color:#fff;
 }
 
 /* EMPTY */
 .empty{
   text-align:center;
-  margin-top:80px;
-  font-size:22px;
+  margin-top:70px;
+  font-size:24px;
   color:#ccc;
 }
 </style>
@@ -115,10 +131,6 @@ body{
 <div class="container">
   <div id="orders" class="empty">Waiting for orders...</div>
 </div>
-
-<audio id="beep">
-  <source src="https://assets.mixkit.co/sfx/preview/mixkit-alert-bells-echo-766.mp3">
-</audio>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -133,77 +145,80 @@ firebase.initializeApp({
 
 const db = firebase.firestore();
 const ordersDiv = document.getElementById("orders");
-const beep = document.getElementById("beep");
-let firstLoad = true;
 
-/* LIVE ORDERS */
+/* LOAD NEW ORDERS */
 db.collection("orders")
 .where("status","==","new")
 .onSnapshot(snapshot=>{
   ordersDiv.innerHTML="";
 
   if(snapshot.empty){
-    ordersDiv.innerHTML='<div class="empty">No Orders</div>';
+    ordersDiv.innerHTML='<div class="empty">No Active Orders</div>';
     return;
   }
 
-  if(!firstLoad) beep.play();
-  firstLoad=false;
-
   snapshot.forEach(doc=>{
     const d = doc.data();
-    let itemsHTML="";
 
-    /* ITEMS */
+    /* 🔥 FINAL FIX (NO UNKNOWN) */
+    let placeText = "DIRECT";
+    if(d.type && d.no){
+      placeText = `${d.type.toUpperCase()} ${d.no}`;
+    }
+
+    let itemsHTML="";
+    let total=0;
+
     for(let name in d.items){
+      const it = d.items[name];
+      total += it.price * it.qty;
       itemsHTML+=`
         <div class="item">
           <span>${name}</span>
-          <span>x${d.items[name].qty}</span>
+          <span>x${it.qty}</span>
         </div>
       `;
     }
 
-    /* LOCATION TEXT */
-    let locationText = "UNKNOWN";
-    if(d.type && d.no){
-      locationText =
-        d.type.toUpperCase() + " " + d.no;
-    }
-
     ordersDiv.innerHTML+=`
       <div class="order-card">
-        <div class="order-head">
-          <div class="order-id">
-            Order ID: ${doc.id.substring(0,6)}
-          </div>
-          <div class="location">
-            ${locationText}
-          </div>
+        <div class="place-badge">${placeText}</div>
+
+        <div class="order-id">
+          Order ID: ${doc.id.substring(0,6).toUpperCase()}
         </div>
 
-        <div class="items">
-          ${itemsHTML}
-        </div>
+        <div class="items">${itemsHTML}</div>
 
-        <div class="total">
-          ₹ ${d.total}
-        </div>
+        <div class="total">₹ ${total}</div>
 
-        <button class="done-btn"
-          onclick="done('${doc.id}')">
-          ✔ ORDER READY
-        </button>
+        <div class="actions">
+          <button class="done-btn" onclick="markDone('${doc.id}')">
+            ✔ ORDER READY
+          </button>
+          <button class="cancel-btn" onclick="cancelOrder('${doc.id}')">
+            ✖ CANCEL
+          </button>
+        </div>
       </div>
     `;
   });
 });
 
-/* DONE */
-function done(id){
-  db.collection("orders")
-    .doc(id)
-    .update({status:"completed"});
+/* DONE → BILLING */
+function markDone(id){
+  if(confirm("Mark order as READY?")){
+    db.collection("orders").doc(id).update({
+      status:"completed"
+    });
+  }
+}
+
+/* CANCEL → DELETE */
+function cancelOrder(id){
+  if(confirm("Cancel & delete this order?")){
+    db.collection("orders").doc(id).delete();
+  }
 }
 </script>
 
