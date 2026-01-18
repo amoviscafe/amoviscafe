@@ -13,25 +13,18 @@ body{
   background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:#fff;
 }
-
-/* HEADER */
 .header{
   background:linear-gradient(90deg,#ff512f,#dd2476);
   padding:20px;
   text-align:center;
   font-size:30px;
   font-weight:900;
-  letter-spacing:2px;
 }
-
-/* CONTAINER */
 .container{
   padding:20px;
   max-width:1200px;
   margin:auto;
 }
-
-/* ORDER CARD */
 .order-card{
   background:linear-gradient(135deg,#1e1e1e,#2c2c2c);
   border-radius:22px;
@@ -40,8 +33,6 @@ body{
   box-shadow:0 18px 45px rgba(0,0,0,.65);
   position:relative;
 }
-
-/* PLACE BADGE */
 .place-badge{
   position:absolute;
   top:-26px;
@@ -52,14 +43,16 @@ body{
   border-radius:50px;
   font-size:28px;
   font-weight:900;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  box-shadow:0 12px 30px rgba(0,0,0,.6);
 }
-
-/* CUSTOMER */
+.order-no{
+  text-align:center;
+  margin-top:20px;
+  font-size:20px;
+  font-weight:900;
+  color:#00e5ff;
+}
 .customer{
-  margin-top:36px;
+  margin-top:10px;
   text-align:center;
   font-size:18px;
   font-weight:700;
@@ -68,62 +61,22 @@ body{
 .customer span{
   display:block;
   font-size:15px;
-  font-weight:500;
   color:#ddd;
-  margin-top:4px;
 }
-
-/* ORDER ID */
-.order-id{
-  text-align:center;
-  font-size:13px;
-  color:#ffcc80;
-  margin-top:10px;
-}
-
-/* ITEMS */
-.items{
-  margin:20px 0;
-}
+.items{margin:20px 0}
 .item{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   padding:10px 0;
   border-bottom:1px dashed #444;
   font-size:17px;
 }
-.item:last-child{border-bottom:none}
-
-.item-left{
-  flex:1;
-}
-.item-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.remove-item{
-  background:#ff4b2b;
-  border:none;
-  color:#fff;
-  border-radius:50%;
-  width:26px;
-  height:26px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-/* TOTAL */
 .total{
   text-align:right;
   font-size:24px;
   font-weight:900;
   color:#4caf50;
-  margin-top:16px;
 }
-
-/* ACTIONS */
 .actions{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -136,7 +89,6 @@ body{
   border-radius:40px;
   font-size:18px;
   font-weight:800;
-  cursor:pointer;
   background:linear-gradient(90deg,#00b09b,#96c93d);
 }
 .cancel-btn{
@@ -145,12 +97,9 @@ body{
   border-radius:40px;
   font-size:18px;
   font-weight:800;
-  cursor:pointer;
   background:linear-gradient(90deg,#ff416c,#ff4b2b);
   color:#fff;
 }
-
-/* EMPTY */
 .empty{
   text-align:center;
   margin-top:80px;
@@ -165,8 +114,11 @@ body{
 <div class="header">🍳 AMOVIS CAFE – KITCHEN</div>
 
 <div class="container">
-  <div id="orders" class="empty">Waiting for orders...</div>
+  <div id="orders" class="empty">Tap anywhere once to enable sound 🔊</div>
 </div>
+
+<!-- SOUND -->
+<audio id="orderSound" src="assets/order.mp3" preload="auto"></audio>
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -174,18 +126,45 @@ body{
 
 <script>
 firebase.initializeApp({
-  apiKey: "AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
-  authDomain: "amovis-cafe-booking.firebaseapp.com",
-  projectId: "amovis-cafe-booking"
+  apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+  authDomain:"amovis-cafe-booking.firebaseapp.com",
+  projectId:"amovis-cafe-booking"
 });
 
 const db = firebase.firestore();
 const ordersDiv = document.getElementById("orders");
+const sound = document.getElementById("orderSound");
 
-/* LOAD NEW ORDERS */
+let soundEnabled = false;
+let firstLoad = true;
+
+/* 🔓 UNLOCK SOUND ON FIRST CLICK */
+document.body.addEventListener("click", ()=>{
+  if(!soundEnabled){
+    sound.play().then(()=>{
+      sound.pause();
+      sound.currentTime = 0;
+      soundEnabled = true;
+      console.log("Sound enabled");
+    });
+  }
+},{once:true});
+
+/* LOAD ORDERS FIFO */
 db.collection("orders")
 .where("status","==","new")
+.orderBy("createdAt","asc")
 .onSnapshot(snapshot=>{
+
+  /* 🔔 PLAY SOUND FOR NEW ORDER */
+  snapshot.docChanges().forEach(change=>{
+    if(change.type==="added" && !firstLoad && soundEnabled){
+      sound.currentTime = 0;
+      sound.play();
+    }
+  });
+  firstLoad = false;
+
   ordersDiv.innerHTML="";
 
   if(snapshot.empty){
@@ -193,48 +172,35 @@ db.collection("orders")
     return;
   }
 
+  let orderNo = 1;
+
   snapshot.forEach(doc=>{
     const d = doc.data();
 
-    /* PLACE TEXT FIX */
-    let placeText = "DIRECT";
-    if(d.type && d.no){
-      placeText = `${d.type} ${d.no}`;
-    }
+    const place = d.type && d.no ? `${d.type} ${d.no}` : "DIRECT";
 
-    let itemsHTML="";
-    let total=0;
-
+    let itemsHTML="", total=0;
     for(let name in d.items){
       const it = d.items[name];
-      const itemTotal = it.price * it.qty;
-      total += itemTotal;
+      const amt = it.price * it.qty;
+      total += amt;
 
-      itemsHTML+=`
+      itemsHTML += `
         <div class="item">
-          <div class="item-left">
-            ${name} <b>×${it.qty}</b>
-          </div>
-          <div class="item-right">
-            ₹${itemTotal}
-            <button class="remove-item"
-              onclick="removeItem('${doc.id}','${name}')">×</button>
-          </div>
-        </div>
-      `;
+          <div>${name} × ${it.qty}</div>
+          <div>₹${amt}</div>
+        </div>`;
     }
 
-    ordersDiv.innerHTML+=`
+    ordersDiv.innerHTML += `
       <div class="order-card">
-        <div class="place-badge">${placeText}</div>
+        <div class="place-badge">${place}</div>
+
+        <div class="order-no">ORDER #${orderNo++}</div>
 
         <div class="customer">
           ${d.customerName || "Guest"}
           <span>📞 ${d.customerMobile || "-"}</span>
-        </div>
-
-        <div class="order-id">
-          Order ID: ${doc.id.substring(0,6).toUpperCase()}
         </div>
 
         <div class="items">${itemsHTML}</div>
@@ -246,7 +212,7 @@ db.collection("orders")
             ✔ ORDER READY
           </button>
           <button class="cancel-btn" onclick="cancelOrder('${doc.id}')">
-            ✖ CANCEL ORDER
+            ✖ CANCEL
           </button>
         </div>
       </div>
@@ -254,29 +220,14 @@ db.collection("orders")
   });
 });
 
-/* MARK DONE */
+/* DONE */
 function markDone(id){
-  if(confirm("Mark this order as READY?")){
-    db.collection("orders").doc(id).update({
-      status:"completed"
-    });
-  }
+  db.collection("orders").doc(id).update({status:"completed"});
 }
 
-/* REMOVE SINGLE ITEM */
-function removeItem(orderId,itemName){
-  if(confirm("Remove this item?")){
-    db.collection("orders").doc(orderId).update({
-      [`items.${itemName}`]: firebase.firestore.FieldValue.delete()
-    });
-  }
-}
-
-/* CANCEL FULL ORDER */
+/* CANCEL */
 function cancelOrder(id){
-  if(confirm("Cancel & delete entire order?")){
-    db.collection("orders").doc(id).delete();
-  }
+  db.collection("orders").doc(id).delete();
 }
 </script>
 
