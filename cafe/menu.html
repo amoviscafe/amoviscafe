@@ -316,6 +316,16 @@ body{
 
 </div>
 
+<!-- ================= CART ================= -->
+<div class="cart">
+<h3>🛒 Your Cart</h3>
+<div id="cart"></div>
+<div class="total">Total ₹ <span id="total">0</span></div>
+<button class="place" onclick="placeOrder()">PLACE ORDER</button>
+</div>
+
+</div>
+
 <div class="footer">Amovis Cafe & Fast Food – Smart Ordering System</div>
 
 <!-- ===== THANK YOU POPUP ===== -->
@@ -339,6 +349,11 @@ firebase.initializeApp({
   projectId: "amovis-cafe-booking"
 });
 const db = firebase.firestore();
+
+/* 🔥 READ QR DATA (FIX) */
+const params = new URLSearchParams(window.location.search);
+const orderType = params.get("type") || "direct";
+const orderNo   = params.get("no") || "-";
 
 let cart={};
 
@@ -382,7 +397,12 @@ function placeOrder(){
     items:cart,
     total:document.getElementById("total").innerText,
     status:"new",
-    time:new Date()
+
+    /* 🔥 FIXED DATA */
+    type: orderType,
+    no: orderNo,
+
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(()=>{
     cart={};
     render();
