@@ -126,7 +126,7 @@ body{
   <div id="orders" class="empty">Tap once to enable sound 🔊</div>
 </div>
 
-<audio id="orderSound" src="assets/order.mp3" preload="auto" loop></audio>
+<audio id="orderSound" src="order.mp3" preload="auto"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -142,68 +142,96 @@ const db = firebase.firestore();
 const ordersDiv = document.getElementById("orders");
 const sound = document.getElementById("orderSound");
 
-let soundEnabled=false;
+let soundEnabled = false;
+let bellTimer = null;
 
-/* unlock sound */
+/* 🔐 unlock sound */
 document.body.addEventListener("click",()=>{
   if(!soundEnabled){
     sound.play().then(()=>{
       sound.pause();
-      sound.currentTime=0;
-      soundEnabled=true;
+      sound.currentTime = 0;
+      soundEnabled = true;
     });
   }
 },{once:true});
 
-/* ✅ WORKING QUERY (NO orderBy issue) */
+/* 🔔 bell control */
+function startBell(){
+  if(bellTimer || !soundEnabled) return;
+  bellTimer = setInterval(()=>{
+    sound.currentTime = 0;
+    sound.play().catch(()=>{});
+  },3000);
+}
+function stopBell(){
+  if(bellTimer){
+    clearInterval(bellTimer);
+    bellTimer = null;
+  }
+  sound.pause();
+  sound.currentTime = 0;
+}
+
+/* 🧠 track previous item count */
+const lastItemCount = {};
+
+/* 🔥 realtime orders */
 db.collection("orders")
 .where("status","in",["new","accepted"])
 .onSnapshot(snapshot=>{
 
   ordersDiv.innerHTML="";
-
   if(snapshot.empty){
-    sound.pause();
-    sound.currentTime=0;
+    stopBell();
     ordersDiv.innerHTML='<div class="empty">No Active Orders</div>';
     return;
   }
 
-  /* 🔔 bell logic */
-  const hasNew = snapshot.docs.some(d=>d.data().status==="new");
-  if(hasNew && soundEnabled){
-    sound.play();
-  }else{
-    sound.pause();
-    sound.currentTime=0;
-  }
+  let shouldRing = false;
+  let orderNo = 1;
 
-  let orderNo=1;
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    const items = d.items || {};
+    const itemCount = Object.values(items)
+      .reduce((s,i)=>s+i.qty,0);
 
-  snapshot.docs.forEach(doc=>{
-    const d=doc.data();
-    const place=d.type&&d.no?`${d.type} ${d.no}`:"DIRECT";
+    /* 🔁 PART ORDER DETECT */
+    if(
+      d.status === "accepted" &&
+      lastItemCount[doc.id] !== undefined &&
+      itemCount > lastItemCount[doc.id]
+    ){
+      shouldRing = true;
+      d.__forceAccept = true; // local flag
+    }
 
-    let itemsHTML="",total=0;
-    for(let name in d.items){
-      const it=d.items[name];
-      const amt=it.price*it.qty;
-      total+=amt;
-      itemsHTML+=`
+    if(d.status === "new") shouldRing = true;
+    lastItemCount[doc.id] = itemCount;
+
+    const place = d.type && d.no ? `${d.type} ${d.no}` : "DIRECT";
+
+    let itemsHTML="", total=0;
+    for(let name in items){
+      const it = items[name];
+      const amt = it.price * it.qty;
+      total += amt;
+      itemsHTML += `
         <div class="item">
           <div>${name} × ${it.qty}</div>
           <div>₹${amt}</div>
         </div>`;
     }
 
-    ordersDiv.innerHTML+=`
+    ordersDiv.innerHTML += `
       <div class="order-card">
         <div class="place-badge">${place}</div>
         <div class="order-no">ORDER #${orderNo++}</div>
 
         <div class="customer">
-          ${d.customerName||"Guest"}
-          <span>📞 ${d.customerMobile||"-"}</span>
+          ${d.customerName || "Guest"}
+          <span>📞 ${d.customerMobile || "-"}</span>
         </div>
 
         <div class="items">${itemsHTML}</div>
@@ -211,7 +239,7 @@ db.collection("orders")
 
         <div class="actions">
           ${
-            d.status==="new"
+            d.status==="new" || d.__forceAccept
             ? `<button class="accept-btn" onclick="acceptOrder('${doc.id}')">🟡 ACCEPT</button>`
             : `<button class="accept-btn" disabled>ACCEPTED</button>`
           }
@@ -221,16 +249,22 @@ db.collection("orders")
       </div>
     `;
   });
+
+  shouldRing ? startBell() : stopBell();
 });
 
+/* actions */
 function acceptOrder(id){
+  stopBell();
   db.collection("orders").doc(id).update({status:"accepted"});
 }
 function markDone(id){
+  stopBell();
   db.collection("orders").doc(id).update({status:"completed"});
 }
 function cancelOrder(id){
   if(confirm("Cancel order?")){
+    stopBell();
     db.collection("orders").doc(id).delete();
   }
 }
