@@ -79,7 +79,7 @@ header{
 .order{
   background:#0f172a;
   border-radius:18px;
-  padding:16px;
+  padding:18px;
   box-shadow:0 10px 30px rgba(0,0,0,.5);
   position:relative;
 }
@@ -97,9 +97,20 @@ header{
   letter-spacing:1px;
 }
 
+/* CUSTOMER */
+.customer{
+  margin-top:18px;
+  font-weight:700;
+}
+.customer span{
+  display:block;
+  font-size:13px;
+  opacity:.8;
+}
+
 /* ITEMS */
 .items{
-  margin-top:24px;
+  margin-top:14px;
   font-size:14px;
 }
 .items div{
@@ -112,7 +123,7 @@ header{
 .meta{
   font-size:12px;
   opacity:.8;
-  margin-top:6px;
+  margin-top:8px;
 }
 
 /* TOTAL */
@@ -125,7 +136,7 @@ header{
 
 /* DELETE */
 .delete-btn{
-  margin-top:10px;
+  margin-top:12px;
   width:100%;
   padding:10px;
   border:none;
@@ -214,7 +225,9 @@ function render(data){
   empty.style.display="none";
 
   data.forEach(o=>{
-    let place = (o.type && o.no) ? `${o.type.toUpperCase()} ${o.no}` : "UNKNOWN";
+    const place=(o.type&&o.no)?`${o.type.toUpperCase()} ${o.no}`:"DIRECT";
+    const custName=o.customerName || "-";
+    const custMobile=o.customerMobile || "-";
 
     let itemsHTML="";
     let orderTotal=0;
@@ -235,6 +248,11 @@ function render(data){
     list.innerHTML+=`
       <div class="order">
         <div class="place">${place}</div>
+
+        <div class="customer">
+          ${custName}
+          <span>📞 ${custMobile}</span>
+        </div>
 
         <div class="items">${itemsHTML}</div>
 
