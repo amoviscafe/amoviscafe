@@ -155,8 +155,6 @@ body{
   color:#ccc;
   margin-top:60px;
 }
-
-/* 🔥 PREMIUM POPUP */
 .popup{
   position:fixed;
   inset:0;
@@ -185,7 +183,6 @@ body{
   font-size:30px;
   margin:0 auto 12px;
 }
-
 canvas{display:none}
 </style>
 </head>
@@ -198,7 +195,6 @@ canvas{display:none}
   <div id="bills" class="empty">⌛ Waiting for bills…</div>
 </div>
 
-<!-- PREMIUM SUCCESS POPUP -->
 <div id="successPopup" class="popup">
   <div class="popup-box">
     <div class="tick">✔</div>
@@ -224,48 +220,73 @@ const billsDiv=document.getElementById("bills");
 const OWNER_UPI="amoviscafe@upi";
 const OWNER_NAME="Amovis Cafe";
 
-/* LOAD BILLS */
+/* 🔥 MERGED BILLING LOGIC */
 db.collection("orders").where("status","==","completed")
 .onSnapshot(snapshot=>{
   billsDiv.innerHTML="";
   if(snapshot.empty){
-    billsDiv.innerHTML='<div class="empty">No Bills</div>';return;
+    billsDiv.innerHTML='<div class="empty">No Bills</div>';
+    return;
   }
+
+  const grouped={};
 
   snapshot.forEach(doc=>{
     const d=doc.data();
-    const place=d.type&&d.no?`${d.type.toUpperCase()} ${d.no}`:"DIRECT";
+    const key=(d.type||"direct")+"_"+(d.no||"");
 
-    let itemsHTML="",waText="",total=0;
+    if(!grouped[key]){
+      grouped[key]={
+        docIds:[],
+        type:d.type,
+        no:d.no,
+        customerName:d.customerName,
+        customerMobile:d.customerMobile,
+        items:{}
+      };
+    }
+
+    grouped[key].docIds.push(doc.id);
 
     for(let n in d.items){
-      const i=d.items[n];
+      const it=d.items[n];
+      if(grouped[key].items[n]){
+        grouped[key].items[n].qty+=it.qty;
+      }else{
+        grouped[key].items[n]={...it};
+      }
+    }
+  });
+
+  Object.values(grouped).forEach(g=>{
+    const place=g.type&&g.no?`${g.type.toUpperCase()} ${g.no}`:"DIRECT";
+    let itemsHTML="",total=0,waText="";
+
+    for(let n in g.items){
+      const i=g.items[n];
       const amt=i.price*i.qty;
       total+=amt;
       const manualClass=i.addedBy==="billing"?"manual-item":"";
-
       itemsHTML+=`
       <div class="item ${manualClass}">
         <span>${n} × ${i.qty}</span>
         <span class="price">₹${amt}</span>
-        <button class="del" onclick="removeItem('${doc.id}','${n}')">×</button>
+        <button class="del" onclick="removeItem('${g.docIds[0]}','${n}')">×</button>
       </div>`;
-
       waText+=`• ${n} x${i.qty} = ₹${amt}\n`;
     }
 
     const waBill=
 `☕ AMOVIS CAFE
 ---------------------
-👤 ${d.customerName}
-📞 ${d.customerMobile}
+👤 ${g.customerName}
+📞 ${g.customerMobile}
 📍 ${place}
 
 ${waText}
 ---------------------
 💰 TOTAL ₹${total}
 
-Scan QR to pay
 Thank you 😊`;
 
     billsDiv.innerHTML+=`
@@ -273,8 +294,8 @@ Thank you 😊`;
       <div class="place-badge">${place}</div>
 
       <div class="customer">
-        <div class="name">👤 ${d.customerName}</div>
-        <div class="mobile">📞 ${d.customerMobile}</div>
+        <div class="name">👤 ${g.customerName}</div>
+        <div class="mobile">📞 ${g.customerMobile}</div>
       </div>
 
       ${itemsHTML}
@@ -282,23 +303,22 @@ Thank you 😊`;
       <div class="manual">
         <div class="manual-title">➕ Manual Item</div>
         <div class="manual-row">
-          <input id="n-${doc.id}" placeholder="Item">
-          <input id="p-${doc.id}" type="number" placeholder="Price">
-          <input id="q-${doc.id}" type="number" value="1">
+          <input id="n-${g.docIds[0]}" placeholder="Item">
+          <input id="p-${g.docIds[0]}" type="number" placeholder="Price">
+          <input id="q-${g.docIds[0]}" type="number" value="1">
         </div>
-        <button class="add-btn" onclick="addManual('${doc.id}')">ADD</button>
+        <button class="add-btn" onclick="addManual('${g.docIds[0]}')">ADD</button>
       </div>
 
       <div class="total">TOTAL ₹ ${total}</div>
 
       <div class="actions">
-        <button class="btn qrbtn" onclick="generateQR('${doc.id}',${total})">📷 QR</button>
-        <button class="btn imgbtn" onclick="downloadBillImage('${d.customerName}','${d.customerMobile}',\`${waText}\`,${total})">🖼 BILL</button>
-        <button class="btn whatsapp" onclick="sendWhatsApp('${d.customerMobile}',\`${waBill}\`)">💬 WhatsApp</button>
-        <button class="btn pay" onclick="markPaid('${doc.id}')">✅ DONE</button>
+        <button class="btn qrbtn" onclick="generateQR('${g.docIds[0]}',${total})">📷 QR</button>
+        <button class="btn whatsapp" onclick="sendWhatsApp('${g.customerMobile}',\`${waBill}\`)">💬 WhatsApp</button>
+        <button class="btn pay" onclick="markPaid('${g.docIds[0]}')">✅ DONE</button>
       </div>
 
-      <div class="qr-box" id="qr-${doc.id}"></div>
+      <div class="qr-box" id="qr-${g.docIds[0]}"></div>
     </div>`;
   });
 });
@@ -340,10 +360,10 @@ function sendWhatsApp(m,msg){
   window.open(`https://wa.me/91${m}?text=${encodeURIComponent(msg)}`,"_blank");
 }
 
-/* ✅ FIXED DONE */
+/* DONE */
 function markPaid(id){
   db.collection("orders").doc(id).update({
-    status:"COMPLETED",
+    status:"PAID",
     paymentMode:"UPI",
     completedAt:firebase.firestore.FieldValue.serverTimestamp()
   }).then(()=>{
