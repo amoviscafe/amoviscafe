@@ -44,15 +44,8 @@ body{
   font-size:28px;
   font-weight:900;
 }
-.order-no{
-  text-align:center;
-  margin-top:20px;
-  font-size:20px;
-  font-weight:900;
-  color:#00e5ff;
-}
 .customer{
-  margin-top:10px;
+  margin-top:36px;
   text-align:center;
   font-size:18px;
   font-weight:700;
@@ -112,15 +105,12 @@ body{
 <body>
 
 <div class="header">🍳 AMOVIS CAFE – KITCHEN</div>
-
 <div class="container">
-  <div id="orders" class="empty">Tap anywhere once to enable sound 🔊</div>
+  <div id="orders" class="empty">Waiting for orders...</div>
 </div>
 
-<!-- SOUND -->
-<audio id="orderSound" src="assets/order.mp3" preload="auto"></audio>
+<audio id="orderSound" src="assets/order.mp3"></audio>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -135,30 +125,16 @@ const db = firebase.firestore();
 const ordersDiv = document.getElementById("orders");
 const sound = document.getElementById("orderSound");
 
-let soundEnabled = false;
 let firstLoad = true;
 
-/* 🔓 UNLOCK SOUND ON FIRST CLICK */
-document.body.addEventListener("click", ()=>{
-  if(!soundEnabled){
-    sound.play().then(()=>{
-      sound.pause();
-      sound.currentTime = 0;
-      soundEnabled = true;
-      console.log("Sound enabled");
-    });
-  }
-},{once:true});
-
-/* LOAD ORDERS FIFO */
+/* LISTENER */
 db.collection("orders")
 .where("status","==","new")
-.orderBy("createdAt","asc")
 .onSnapshot(snapshot=>{
 
-  /* 🔔 PLAY SOUND FOR NEW ORDER */
+  /* 🔔 SOUND ONLY FOR NEW ORDERS */
   snapshot.docChanges().forEach(change=>{
-    if(change.type==="added" && !firstLoad && soundEnabled){
+    if(change.type === "added" && !firstLoad){
       sound.currentTime = 0;
       sound.play();
     }
@@ -172,48 +148,63 @@ db.collection("orders")
     return;
   }
 
-  let orderNo = 1;
+  /* 🔗 MERGE SAME TABLE ORDERS */
+  const merged = {};
 
-  snapshot.forEach(doc=>{
+  snapshot.docs.forEach(doc=>{
     const d = doc.data();
+    const key = d.type && d.no ? `${d.type}-${d.no}` : doc.id;
 
-    const place = d.type && d.no ? `${d.type} ${d.no}` : "DIRECT";
+    if(!merged[key]){
+      merged[key] = {
+        id: doc.id,
+        place: d.type && d.no ? `${d.type} ${d.no}` : "DIRECT",
+        customer: d.customerName,
+        mobile: d.customerMobile,
+        items:{}
+      };
+    }
 
+    for(let item in d.items){
+      if(!merged[key].items[item]){
+        merged[key].items[item] = {...d.items[item]};
+      }else{
+        merged[key].items[item].qty += d.items[item].qty;
+      }
+    }
+  });
+
+  /* FIFO DISPLAY */
+  Object.values(merged).forEach(order=>{
     let itemsHTML="", total=0;
-    for(let name in d.items){
-      const it = d.items[name];
+
+    for(let name in order.items){
+      const it = order.items[name];
       const amt = it.price * it.qty;
       total += amt;
 
-      itemsHTML += `
+      itemsHTML+=`
         <div class="item">
           <div>${name} × ${it.qty}</div>
           <div>₹${amt}</div>
         </div>`;
     }
 
-    ordersDiv.innerHTML += `
+    ordersDiv.innerHTML+=`
       <div class="order-card">
-        <div class="place-badge">${place}</div>
-
-        <div class="order-no">ORDER #${orderNo++}</div>
+        <div class="place-badge">${order.place}</div>
 
         <div class="customer">
-          ${d.customerName || "Guest"}
-          <span>📞 ${d.customerMobile || "-"}</span>
+          ${order.customer || "Guest"}
+          <span>📞 ${order.mobile || "-"}</span>
         </div>
 
         <div class="items">${itemsHTML}</div>
-
         <div class="total">₹ ${total}</div>
 
         <div class="actions">
-          <button class="done-btn" onclick="markDone('${doc.id}')">
-            ✔ ORDER READY
-          </button>
-          <button class="cancel-btn" onclick="cancelOrder('${doc.id}')">
-            ✖ CANCEL
-          </button>
+          <button class="done-btn" onclick="markDone('${order.id}')">✔ ORDER READY</button>
+          <button class="cancel-btn" onclick="cancelOrder('${order.id}')">✖ CANCEL</button>
         </div>
       </div>
     `;
