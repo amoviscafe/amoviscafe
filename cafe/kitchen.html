@@ -35,79 +35,115 @@ body{
 .order-card{
   background:linear-gradient(135deg,#1e1e1e,#2c2c2c);
   border-radius:22px;
-  padding:22px;
-  margin-bottom:28px;
-  box-shadow:0 15px 40px rgba(0,0,0,.6);
+  padding:26px 22px 22px;
+  margin-bottom:36px;
+  box-shadow:0 18px 45px rgba(0,0,0,.65);
   position:relative;
 }
 
-/* PLACE BADGE (BIG CENTER) */
+/* PLACE BADGE */
 .place-badge{
   position:absolute;
-  top:-22px;
+  top:-26px;
   left:50%;
   transform:translateX(-50%);
   background:linear-gradient(90deg,#7f00ff,#e100ff);
-  padding:12px 34px;
-  border-radius:40px;
-  font-size:26px;
+  padding:14px 40px;
+  border-radius:50px;
+  font-size:28px;
   font-weight:900;
   letter-spacing:2px;
   text-transform:uppercase;
-  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  box-shadow:0 12px 30px rgba(0,0,0,.6);
+}
+
+/* CUSTOMER */
+.customer{
+  margin-top:36px;
+  text-align:center;
+  font-size:18px;
+  font-weight:700;
+  color:#ffd166;
+}
+.customer span{
+  display:block;
+  font-size:15px;
+  font-weight:500;
+  color:#ddd;
+  margin-top:4px;
 }
 
 /* ORDER ID */
 .order-id{
   text-align:center;
-  font-size:14px;
+  font-size:13px;
   color:#ffcc80;
-  margin-top:26px;
+  margin-top:10px;
 }
 
 /* ITEMS */
 .items{
-  margin:18px 0;
+  margin:20px 0;
 }
 .item{
   display:flex;
   justify-content:space-between;
-  padding:8px 0;
+  align-items:center;
+  padding:10px 0;
   border-bottom:1px dashed #444;
   font-size:17px;
 }
 .item:last-child{border-bottom:none}
 
+.item-left{
+  flex:1;
+}
+.item-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.remove-item{
+  background:#ff4b2b;
+  border:none;
+  color:#fff;
+  border-radius:50%;
+  width:26px;
+  height:26px;
+  font-weight:900;
+  cursor:pointer;
+}
+
 /* TOTAL */
 .total{
   text-align:right;
-  font-size:22px;
+  font-size:24px;
   font-weight:900;
   color:#4caf50;
-  margin-top:14px;
+  margin-top:16px;
 }
 
 /* ACTIONS */
 .actions{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:16px;
-  margin-top:18px;
+  gap:18px;
+  margin-top:20px;
 }
 .done-btn{
-  padding:14px;
+  padding:16px;
   border:none;
-  border-radius:34px;
-  font-size:17px;
+  border-radius:40px;
+  font-size:18px;
   font-weight:800;
   cursor:pointer;
   background:linear-gradient(90deg,#00b09b,#96c93d);
 }
 .cancel-btn{
-  padding:14px;
+  padding:16px;
   border:none;
-  border-radius:34px;
-  font-size:17px;
+  border-radius:40px;
+  font-size:18px;
   font-weight:800;
   cursor:pointer;
   background:linear-gradient(90deg,#ff416c,#ff4b2b);
@@ -117,8 +153,8 @@ body{
 /* EMPTY */
 .empty{
   text-align:center;
-  margin-top:70px;
-  font-size:24px;
+  margin-top:80px;
+  font-size:26px;
   color:#ccc;
 }
 </style>
@@ -160,10 +196,10 @@ db.collection("orders")
   snapshot.forEach(doc=>{
     const d = doc.data();
 
-    /* 🔥 FINAL FIX (NO UNKNOWN) */
+    /* PLACE TEXT FIX */
     let placeText = "DIRECT";
     if(d.type && d.no){
-      placeText = `${d.type.toUpperCase()} ${d.no}`;
+      placeText = `${d.type} ${d.no}`;
     }
 
     let itemsHTML="";
@@ -171,11 +207,19 @@ db.collection("orders")
 
     for(let name in d.items){
       const it = d.items[name];
-      total += it.price * it.qty;
+      const itemTotal = it.price * it.qty;
+      total += itemTotal;
+
       itemsHTML+=`
         <div class="item">
-          <span>${name}</span>
-          <span>x${it.qty}</span>
+          <div class="item-left">
+            ${name} <b>×${it.qty}</b>
+          </div>
+          <div class="item-right">
+            ₹${itemTotal}
+            <button class="remove-item"
+              onclick="removeItem('${doc.id}','${name}')">×</button>
+          </div>
         </div>
       `;
     }
@@ -183,6 +227,11 @@ db.collection("orders")
     ordersDiv.innerHTML+=`
       <div class="order-card">
         <div class="place-badge">${placeText}</div>
+
+        <div class="customer">
+          ${d.customerName || "Guest"}
+          <span>📞 ${d.customerMobile || "-"}</span>
+        </div>
 
         <div class="order-id">
           Order ID: ${doc.id.substring(0,6).toUpperCase()}
@@ -197,7 +246,7 @@ db.collection("orders")
             ✔ ORDER READY
           </button>
           <button class="cancel-btn" onclick="cancelOrder('${doc.id}')">
-            ✖ CANCEL
+            ✖ CANCEL ORDER
           </button>
         </div>
       </div>
@@ -205,18 +254,27 @@ db.collection("orders")
   });
 });
 
-/* DONE → BILLING */
+/* MARK DONE */
 function markDone(id){
-  if(confirm("Mark order as READY?")){
+  if(confirm("Mark this order as READY?")){
     db.collection("orders").doc(id).update({
       status:"completed"
     });
   }
 }
 
-/* CANCEL → DELETE */
+/* REMOVE SINGLE ITEM */
+function removeItem(orderId,itemName){
+  if(confirm("Remove this item?")){
+    db.collection("orders").doc(orderId).update({
+      [`items.${itemName}`]: firebase.firestore.FieldValue.delete()
+    });
+  }
+}
+
+/* CANCEL FULL ORDER */
 function cancelOrder(id){
-  if(confirm("Cancel & delete this order?")){
+  if(confirm("Cancel & delete entire order?")){
     db.collection("orders").doc(id).delete();
   }
 }
