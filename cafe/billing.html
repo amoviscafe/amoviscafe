@@ -7,7 +7,6 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
@@ -15,105 +14,152 @@ body{
   color:#fff;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 .header{
   background:linear-gradient(90deg,#f7971e,#ffd200);
   color:#000;
   padding:20px;
   text-align:center;
-  font-size:28px;
-  font-weight:bold;
+  font-size:30px;
+  font-weight:900;
   letter-spacing:2px;
 }
 
-/* ================= LAYOUT ================= */
+/* LAYOUT */
 .container{
   max-width:1200px;
   margin:auto;
   padding:20px;
 }
 
-/* ================= BILL CARD ================= */
+/* BILL CARD */
 .bill-card{
   background:linear-gradient(135deg,#1f1f1f,#2d2d2d);
-  border-radius:18px;
-  padding:18px;
-  margin-bottom:20px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.4);
-  border-left:6px solid #4caf50;
+  border-radius:22px;
+  padding:22px;
+  margin-bottom:26px;
+  box-shadow:0 12px 28px rgba(0,0,0,.5);
+  position:relative;
 }
 
+/* PLACE BADGE */
+.place-badge{
+  position:absolute;
+  top:-20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(90deg,#7f00ff,#e100ff);
+  padding:12px 34px;
+  border-radius:40px;
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+/* BILL HEAD */
 .bill-head{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:10px;
+  margin-top:28px;
 }
-
 .bill-id{
-  font-size:15px;
+  font-size:18px;
   color:#ffeb3b;
+  font-weight:800;
 }
-
 .bill-time{
   font-size:12px;
   color:#ccc;
 }
 
-/* ================= ITEMS ================= */
-.items{
-  margin-top:10px;
-  margin-bottom:10px;
-}
+/* ITEMS */
+.items{margin-top:14px}
 .item{
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  gap:10px;
+  padding:8px 0;
   border-bottom:1px dashed #444;
+  font-size:15px;
+  align-items:center;
 }
-.item:last-child{border-bottom:none}
+.price{color:#00e676;font-weight:700}
+.del{
+  background:#ff5252;
+  border:none;
+  border-radius:50%;
+  width:26px;
+  height:26px;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
 
-/* ================= TOTAL ================= */
+/* MANUAL ADD */
+.manual-box{
+  margin-top:16px;
+  padding:14px;
+  background:#121212;
+  border-radius:14px;
+}
+.manual-title{
+  color:#00e5ff;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+.manual-row{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:8px;
+}
+.manual-row input{
+  padding:8px;
+  border-radius:8px;
+  border:none;
+}
+.add-btn{
+  margin-top:10px;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+
+/* TOTAL */
 .total{
   text-align:right;
-  font-size:20px;
-  font-weight:bold;
+  font-size:24px;
+  font-weight:900;
   color:#00e676;
-  margin-top:10px;
+  margin-top:16px;
 }
 
-/* ================= BUTTON ================= */
+/* PAY */
 .pay-btn{
   width:100%;
-  margin-top:14px;
-  padding:12px;
-  font-size:16px;
-  font-weight:bold;
+  margin-top:16px;
+  padding:14px;
+  font-size:18px;
+  font-weight:900;
   border:none;
   border-radius:30px;
   cursor:pointer;
   background:linear-gradient(90deg,#00c853,#b2ff59);
   color:#000;
-  transition:0.3s;
-}
-.pay-btn:hover{
-  transform:scale(1.04);
 }
 
-/* ================= EMPTY ================= */
+/* EMPTY */
 .empty{
   text-align:center;
   font-size:22px;
   color:#ccc;
   margin-top:80px;
-}
-
-/* ================= FOOTER ================= */
-.footer{
-  text-align:center;
-  font-size:12px;
-  color:#aaa;
-  padding:12px;
 }
 </style>
 </head>
@@ -126,9 +172,6 @@ body{
   <div id="bills" class="empty">Waiting for completed orders...</div>
 </div>
 
-<div class="footer">Billing Screen • Connected with Kitchen & History</div>
-
-<!-- ================= FIREBASE ================= -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -142,60 +185,98 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const billsDiv = document.getElementById("bills");
 
-/* ================= LOAD ORDERS FROM KITCHEN ================= */
+/* LOAD COMPLETED ORDERS */
 db.collection("orders")
-.where("status","==","completed")   // 👨‍🍳 Kitchen DONE
+.where("status","==","completed")
 .onSnapshot(snapshot=>{
   billsDiv.innerHTML="";
 
   if(snapshot.empty){
-    billsDiv.innerHTML='<div class="empty">No bills to generate 💳</div>';
+    billsDiv.innerHTML='<div class="empty">No bills</div>';
     return;
   }
 
   snapshot.forEach(doc=>{
     const d = doc.data();
+
+    let place = "DIRECT";
+    if(d.type && d.no) place = `${d.type} ${d.no}`;
+
     let itemsHTML="";
+    let total=0;
 
     for(let name in d.items){
+      const i=d.items[name];
+      const amt=i.price*i.qty;
+      total+=amt;
+
       itemsHTML+=`
         <div class="item">
           <span>${name}</span>
-          <span>x${d.items[name].qty}</span>
-        </div>
-      `;
+          <span class="price">₹${amt}</span>
+          <button class="del" onclick="removeItem('${doc.id}','${name}')">×</button>
+        </div>`;
     }
-
-    let timeText = d.time?.seconds
-      ? new Date(d.time.seconds*1000).toLocaleString()
-      : '';
 
     billsDiv.innerHTML+=`
       <div class="bill-card">
+        <div class="place-badge">${place}</div>
+
         <div class="bill-head">
-          <div class="bill-id">Order ID: ${doc.id.substring(0,6).toUpperCase()}</div>
-          <div class="bill-time">${timeText}</div>
+          <div class="bill-id">ORDER ${doc.id.substring(0,6).toUpperCase()}</div>
+          <div class="bill-time">${d.time?.seconds?new Date(d.time.seconds*1000).toLocaleString():""}</div>
         </div>
 
         <div class="items">${itemsHTML}</div>
 
-        <div class="total">₹ ${d.total}</div>
+        <div class="manual-box">
+          <div class="manual-title">➕ Add Manual Item</div>
+          <div class="manual-row">
+            <input placeholder="Item name" id="n-${doc.id}">
+            <input type="number" placeholder="Price" id="p-${doc.id}">
+            <input type="number" placeholder="Qty" value="1" id="q-${doc.id}">
+          </div>
+          <button class="add-btn" onclick="addManual('${doc.id}')">ADD ITEM</button>
+        </div>
+
+        <div class="total">₹ ${total}</div>
 
         <button class="pay-btn" onclick="markPaid('${doc.id}')">
           💰 PAYMENT DONE
         </button>
-      </div>
-    `;
+      </div>`;
   });
 });
 
-/* ================= PAYMENT DONE → HISTORY ================= */
-function markPaid(id){
-  if(confirm("Confirm payment received?")){
+/* ADD MANUAL */
+function addManual(id){
+  const n=document.getElementById(`n-${id}`).value;
+  const p=Number(document.getElementById(`p-${id}`).value);
+  const q=Number(document.getElementById(`q-${id}`).value);
+
+  if(!n||p<=0||q<=0){alert("Invalid item");return;}
+
+  db.collection("orders").doc(id).update({
+    [`items.${n}`]:{price:p,qty:q,addedBy:"billing"}
+  });
+}
+
+/* REMOVE ITEM */
+function removeItem(id,name){
+  if(confirm("Remove item?")){
     db.collection("orders").doc(id).update({
-      status: "COMPLETED", // 🔥 History listens to this
-      paymentMode: "Cash", // or UPI
-      completedAt: firebase.firestore.FieldValue.serverTimestamp()
+      [`items.${name}`]:firebase.firestore.FieldValue.delete()
+    });
+  }
+}
+
+/* PAYMENT DONE */
+function markPaid(id){
+  if(confirm("Confirm payment?")){
+    db.collection("orders").doc(id).update({
+      status:"COMPLETED",
+      paymentMode:"Cash",
+      completedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
   }
 }
