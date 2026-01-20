@@ -28,6 +28,8 @@ body{
   max-width:1200px;
   margin:auto;
 }
+
+/* ORDER CARD */
 .order-card{
   background:linear-gradient(135deg,#1e1e1e,#2c2c2c);
   border-radius:22px;
@@ -36,6 +38,8 @@ body{
   box-shadow:0 18px 45px rgba(0,0,0,.65);
   position:relative;
 }
+
+/* PART / NEW ORDER HIGHLIGHT */
 .order-card.part{
   background:linear-gradient(135deg,#0284c7,#22d3ee);
   border:3px solid #67e8f9;
@@ -46,6 +50,7 @@ body{
   50%{box-shadow:0 0 35px rgba(34,211,238,1)}
   100%{box-shadow:0 0 10px rgba(34,211,238,.6)}
 }
+
 .place-badge{
   position:absolute;
   top:-26px;
@@ -57,6 +62,7 @@ body{
   font-size:26px;
   font-weight:900;
 }
+
 .order-no{
   text-align:center;
   margin-top:16px;
@@ -64,6 +70,7 @@ body{
   font-weight:900;
   color:#00e5ff;
 }
+
 .customer{
   margin-top:6px;
   text-align:center;
@@ -76,6 +83,7 @@ body{
   font-size:14px;
   color:#ddd;
 }
+
 .items{margin:20px 0}
 .item{
   display:flex;
@@ -84,18 +92,22 @@ body{
   border-bottom:1px dashed #444;
   font-size:17px;
 }
+
+/* ONLY NEW ADDED ITEM */
 .item.new{
   background:#fde047;
   color:#000;
   font-weight:900;
   border-radius:10px;
 }
+
 .total{
   text-align:right;
   font-size:22px;
   font-weight:900;
   color:#4caf50;
 }
+
 .actions{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -118,6 +130,7 @@ body{
   font-weight:800;
   background:linear-gradient(90deg,#00b09b,#96c93d);
 }
+
 .empty{
   text-align:center;
   margin-top:80px;
@@ -141,6 +154,7 @@ body{
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* 🔥 FIREBASE INIT */
 firebase.initializeApp({
   apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
   authDomain:"amovis-cafe-booking.firebaseapp.com",
@@ -148,13 +162,15 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
+/* DOM */
 const ordersDiv = document.getElementById("orders");
 const sound = document.getElementById("orderSound");
 
-let soundUnlocked=false;
-let ringing=false;
-const prevItems={};
+/* SOUND STATE */
+let soundUnlocked = false;
+let ringing = false;
 
+/* ONE TIME UNLOCK (browser rule) */
 document.body.addEventListener("click",()=>{
   if(!soundUnlocked){
     sound.play().then(()=>{
@@ -165,84 +181,105 @@ document.body.addEventListener("click",()=>{
   }
 },{once:true});
 
+/* SOUND CONTROL */
 function startSound(){
   if(soundUnlocked && !ringing){
-    sound.loop=true;
-    sound.currentTime=0;
+    sound.loop = true;
+    sound.currentTime = 0;
     sound.play().catch(()=>{});
-    ringing=true;
+    ringing = true;
   }
 }
 function stopSound(){
   sound.pause();
-  sound.currentTime=0;
-  ringing=false;
+  sound.currentTime = 0;
+  ringing = false;
 }
 
+/* TRACK PREVIOUS ITEMS */
+const prevItems = {};
+
+/* REALTIME ORDERS */
 db.collection("orders")
 .where("status","in",["new","accepted"])
-.orderBy("createdAt","asc")
 .onSnapshot(snapshot=>{
+
   if(snapshot.empty){
     ordersDiv.innerHTML='<div class="empty">No Active Orders</div>';
     stopSound();
     return;
   }
 
-  let html="";
-  let shouldRing=false;
-  let orderNo=1;
+  let html = "";
+  let shouldRing = false;
+  let orderNo = 1;
 
-  snapshot.forEach(doc=>{
-    const d=doc.data();
-    const items=d.items||{};
-    const prev=prevItems[doc.id]||{};
-    let isPart=false;
-    let itemsHTML="";
-    let total=0;
+  /* NEWEST FIRST */
+  snapshot.docs
+    .sort((a,b)=>{
+      const ta=a.data().createdAt?.seconds||0;
+      const tb=b.data().createdAt?.seconds||0;
+      return tb-ta;
+    })
+    .forEach(doc=>{
+      const d = doc.data();
+      const items = d.items || {};
+      const prev = prevItems[doc.id] || {};
+      let isPart = false;
+      let itemsHTML = "";
+      let total = 0;
 
-    for(let n in items){
-      const it=items[n];
-      const oldQty=prev[n]?.qty||0;
-      const isNew = oldQty===0 || it.qty>oldQty;
+      for(let n in items){
+        const it = items[n];
+        const oldQty = prev[n]?.qty || 0;
+        const isNewItem = oldQty > 0 && it.qty > oldQty;
 
-      if(isNew && prevItems[doc.id]){
-        isPart=true;
-        shouldRing=true;
+        if(isNewItem){
+          isPart = true;
+          shouldRing = true;
+        }
+
+        total += it.price * it.qty;
+
+        itemsHTML += `
+          <div class="item ${isNewItem?'new':''}">
+            <div>${n} × ${it.qty}</div>
+            <div>₹${it.price*it.qty}</div>
+          </div>`;
       }
 
-      total+=it.price*it.qty;
-      itemsHTML+=`
-        <div class="item ${isNew && prevItems[doc.id]?'new':''}">
-          <div>${n} × ${it.qty}</div>
-          <div>₹${it.price*it.qty}</div>
+      /* FIRST TIME ORDER */
+      if(!prevItems[doc.id]){
+        shouldRing = true;
+      }
+
+      prevItems[doc.id] = JSON.parse(JSON.stringify(items));
+
+      html += `
+        <div class="order-card ${isPart?'part':''}">
+          <div class="place-badge">${d.type||'DIRECT'} ${d.no||''}</div>
+          <div class="order-no">ORDER #${orderNo++}</div>
+          <div class="customer">
+            ${d.customerName||'Guest'}
+            <span>📞 ${d.customerMobile||'-'}</span>
+          </div>
+          <div class="items">${itemsHTML}</div>
+          <div class="total">₹ ${total}</div>
+          <div class="actions">
+            <button class="accept-btn" onclick="acceptOrder('${doc.id}')">ACCEPT</button>
+            <button class="done-btn" onclick="doneOrder('${doc.id}')">READY</button>
+          </div>
         </div>`;
-    }
+    });
 
-    if(!prevItems[doc.id]){
-      shouldRing=true;
-    }
+  ordersDiv.innerHTML = html;
 
-    prevItems[doc.id]=JSON.parse(JSON.stringify(items));
-
-    html+=`
-      <div class="order-card ${isPart?'part':''}">
-        <div class="place-badge">${d.type||'DIRECT'} ${d.no||''}</div>
-        <div class="order-no">ORDER #${orderNo++}</div>
-        <div class="customer">${d.customerName||'Guest'}<span>📞 ${d.customerMobile||'-'}</span></div>
-        <div class="items">${itemsHTML}</div>
-        <div class="total">₹ ${total}</div>
-        <div class="actions">
-          <button class="accept-btn" onclick="acceptOrder('${doc.id}')">ACCEPT</button>
-          <button class="done-btn" onclick="doneOrder('${doc.id}')">READY</button>
-        </div>
-      </div>`;
-  });
-
-  ordersDiv.innerHTML=html;
-  if(shouldRing) startSound();
+  if(shouldRing){
+    startSound();
+  }
 });
 
+/* ACTIONS */
 function acceptOrder(id){
   stopSound();
   db.collection("orders").doc(id).update({status:"accepted"});
@@ -253,6 +290,7 @@ function doneOrder(id){
   db.collection("orders").doc(id).update({status:"completed"});
 }
 
+/* PWA SERVICE WORKER */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("service-worker.js");
 }
