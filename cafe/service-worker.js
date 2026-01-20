@@ -1,13 +1,37 @@
 const CACHE_NAME = "amovis-kitchen-v1";
 
-self.addEventListener("install", e => {
+const FILES_TO_CACHE = [
+  "./kitchen.html",
+  "./manifest.json",
+  "./order.mp3",
+  "./icon-192.png",
+  "./icon-512.png"
+];
+
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+  );
   self.skipWaiting();
 });
 
-self.addEventListener("activate", e => {
-  clients.claim();
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
+  );
+  self.clients.claim();
 });
 
-self.addEventListener("fetch", e => {
-  e.respondWith(fetch(e.request));
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    caches.match(event.request).then(res => res || fetch(event.request))
+  );
 });
