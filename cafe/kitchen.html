@@ -5,6 +5,9 @@
 <title>Amovis Cafe – Kitchen Screen</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#dd2476">
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -25,6 +28,8 @@ body{
   max-width:1200px;
   margin:auto;
 }
+
+/* ORDER CARD */
 .order-card{
   background:linear-gradient(135deg,#1e1e1e,#2c2c2c);
   border-radius:22px;
@@ -34,17 +39,16 @@ body{
   position:relative;
 }
 
-/* 🔁 PART ORDER COLOR */
+/* PART / NEW ORDER HIGHLIGHT */
 .order-card.part{
   background:linear-gradient(135deg,#0284c7,#22d3ee);
   border:3px solid #67e8f9;
-  box-shadow:0 0 35px rgba(34,211,238,.9);
   animation:pulse 1.2s infinite;
 }
 @keyframes pulse{
-  0%{box-shadow:0 0 12px rgba(34,211,238,.6)}
-  50%{box-shadow:0 0 40px rgba(34,211,238,1)}
-  100%{box-shadow:0 0 12px rgba(34,211,238,.6)}
+  0%{box-shadow:0 0 10px rgba(34,211,238,.6)}
+  50%{box-shadow:0 0 35px rgba(34,211,238,1)}
+  100%{box-shadow:0 0 10px rgba(34,211,238,.6)}
 }
 
 .place-badge{
@@ -55,53 +59,55 @@ body{
   background:linear-gradient(90deg,#7f00ff,#e100ff);
   padding:14px 40px;
   border-radius:50px;
-  font-size:28px;
+  font-size:26px;
   font-weight:900;
 }
-.part-label{
-  margin-top:6px;
-  text-align:center;
-  font-size:14px;
-  font-weight:900;
-  background:#cffafe;
-  color:#083344;
-  padding:4px 14px;
-  border-radius:20px;
-  display:inline-block;
-}
+
 .order-no{
   text-align:center;
-  margin-top:18px;
-  font-size:20px;
+  margin-top:16px;
+  font-size:18px;
   font-weight:900;
   color:#00e5ff;
 }
+
 .customer{
-  margin-top:10px;
+  margin-top:6px;
   text-align:center;
-  font-size:18px;
+  font-size:17px;
   font-weight:700;
   color:#ffd166;
 }
 .customer span{
   display:block;
-  font-size:15px;
+  font-size:14px;
   color:#ddd;
 }
+
 .items{margin:20px 0}
 .item{
   display:flex;
   justify-content:space-between;
-  padding:10px 0;
+  padding:10px;
   border-bottom:1px dashed #444;
   font-size:17px;
 }
+
+/* ONLY NEW ADDED ITEM */
+.item.new{
+  background:#fde047;
+  color:#000;
+  font-weight:900;
+  border-radius:10px;
+}
+
 .total{
   text-align:right;
-  font-size:24px;
+  font-size:22px;
   font-weight:900;
   color:#4caf50;
 }
+
 .actions{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -124,6 +130,7 @@ body{
   font-weight:800;
   background:linear-gradient(90deg,#00b09b,#96c93d);
 }
+
 .empty{
   text-align:center;
   margin-top:80px;
@@ -147,118 +154,145 @@ body{
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+/* 🔥 FIREBASE INIT */
 firebase.initializeApp({
   apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
   authDomain:"amovis-cafe-booking.firebaseapp.com",
   projectId:"amovis-cafe-booking"
 });
+const db = firebase.firestore();
 
-const db=firebase.firestore();
-const ordersDiv=document.getElementById("orders");
-const sound=document.getElementById("orderSound");
+/* DOM */
+const ordersDiv = document.getElementById("orders");
+const sound = document.getElementById("orderSound");
 
-let soundEnabled=false;
-let bellTimer=null;
+/* SOUND STATE */
+let soundUnlocked = false;
+let ringing = false;
 
-const lastItemCount={};
-const partOrderFlag={}; // 🔑 FIX
-
+/* ONE TIME UNLOCK (browser rule) */
 document.body.addEventListener("click",()=>{
-  if(!soundEnabled){
+  if(!soundUnlocked){
     sound.play().then(()=>{
       sound.pause();
       sound.currentTime=0;
-      soundEnabled=true;
+      soundUnlocked=true;
     });
   }
 },{once:true});
 
-function startBell(){
-  if(bellTimer||!soundEnabled) return;
-  bellTimer=setInterval(()=>{
-    sound.currentTime=0;
+/* SOUND CONTROL */
+function startSound(){
+  if(soundUnlocked && !ringing){
+    sound.loop = true;
+    sound.currentTime = 0;
     sound.play().catch(()=>{});
-  },3000);
+    ringing = true;
+  }
 }
-function stopBell(){
-  clearInterval(bellTimer);
-  bellTimer=null;
+function stopSound(){
   sound.pause();
-  sound.currentTime=0;
+  sound.currentTime = 0;
+  ringing = false;
 }
 
+/* TRACK PREVIOUS ITEMS */
+const prevItems = {};
+
+/* REALTIME ORDERS */
 db.collection("orders")
 .where("status","in",["new","accepted"])
 .onSnapshot(snapshot=>{
 
-  ordersDiv.innerHTML="";
   if(snapshot.empty){
-    stopBell();
     ordersDiv.innerHTML='<div class="empty">No Active Orders</div>';
+    stopSound();
     return;
   }
 
-  let ring=false;
-  let orderNo=1;
+  let html = "";
+  let shouldRing = false;
+  let orderNo = 1;
 
-  snapshot.forEach(doc=>{
-    const d=doc.data();
-    const items=d.items||{};
-    const count=Object.values(items).reduce((s,i)=>s+i.qty,0);
+  /* NEWEST FIRST */
+  snapshot.docs
+    .sort((a,b)=>{
+      const ta=a.data().createdAt?.seconds||0;
+      const tb=b.data().createdAt?.seconds||0;
+      return tb-ta;
+    })
+    .forEach(doc=>{
+      const d = doc.data();
+      const items = d.items || {};
+      const prev = prevItems[doc.id] || {};
+      let isPart = false;
+      let itemsHTML = "";
+      let total = 0;
 
-    if(
-      d.status==="accepted" &&
-      lastItemCount[doc.id]!=null &&
-      count>lastItemCount[doc.id]
-    ){
-      partOrderFlag[doc.id]=true;   // ⭐ main fix
-      ring=true;
-      db.collection("orders").doc(doc.id).update({status:"new"});
-    }
+      for(let n in items){
+        const it = items[n];
+        const oldQty = prev[n]?.qty || 0;
+        const isNewItem = oldQty > 0 && it.qty > oldQty;
 
-    if(d.status==="new") ring=true;
-    lastItemCount[doc.id]=count;
+        if(isNewItem){
+          isPart = true;
+          shouldRing = true;
+        }
 
-    const place=d.type&&d.no?`${d.type} ${d.no}`:"DIRECT";
-    let html="",total=0;
+        total += it.price * it.qty;
 
-    for(let n in items){
-      const it=items[n];
-      total+=it.price*it.qty;
-      html+=`<div class="item"><div>${n} × ${it.qty}</div><div>₹${it.price*it.qty}</div></div>`;
-    }
+        itemsHTML += `
+          <div class="item ${isNewItem?'new':''}">
+            <div>${n} × ${it.qty}</div>
+            <div>₹${it.price*it.qty}</div>
+          </div>`;
+      }
 
-    ordersDiv.innerHTML+=`
-      <div class="order-card ${partOrderFlag[doc.id]?'part':''}">
-        <div class="place-badge">${place}</div>
-        ${partOrderFlag[doc.id]?'<div class="part-label">🔁 PART ORDER</div>':''}
-        <div class="order-no">ORDER #${orderNo++}</div>
-        <div class="customer">${d.customerName||"Guest"}<span>📞 ${d.customerMobile||"-"}</span></div>
-        <div class="items">${html}</div>
-        <div class="total">₹ ${total}</div>
-        <div class="actions">
-          ${
-            d.status==="new"
-            ? `<button class="accept-btn" onclick="acceptOrder('${doc.id}')">🟡 ACCEPT</button>`
-            : `<button class="accept-btn" disabled>ACCEPTED</button>`
-          }
-          <button class="done-btn" onclick="markDone('${doc.id}')">✔ READY</button>
-        </div>
-      </div>`;
-  });
+      /* FIRST TIME ORDER */
+      if(!prevItems[doc.id]){
+        shouldRing = true;
+      }
 
-  ring?startBell():stopBell();
+      prevItems[doc.id] = JSON.parse(JSON.stringify(items));
+
+      html += `
+        <div class="order-card ${isPart?'part':''}">
+          <div class="place-badge">${d.type||'DIRECT'} ${d.no||''}</div>
+          <div class="order-no">ORDER #${orderNo++}</div>
+          <div class="customer">
+            ${d.customerName||'Guest'}
+            <span>📞 ${d.customerMobile||'-'}</span>
+          </div>
+          <div class="items">${itemsHTML}</div>
+          <div class="total">₹ ${total}</div>
+          <div class="actions">
+            <button class="accept-btn" onclick="acceptOrder('${doc.id}')">ACCEPT</button>
+            <button class="done-btn" onclick="doneOrder('${doc.id}')">READY</button>
+          </div>
+        </div>`;
+    });
+
+  ordersDiv.innerHTML = html;
+
+  if(shouldRing){
+    startSound();
+  }
 });
 
+/* ACTIONS */
 function acceptOrder(id){
-  stopBell();
-  partOrderFlag[id]=false; // remove highlight
+  stopSound();
   db.collection("orders").doc(id).update({status:"accepted"});
 }
-function markDone(id){
-  stopBell();
-  delete partOrderFlag[id];
+function doneOrder(id){
+  stopSound();
+  delete prevItems[id];
   db.collection("orders").doc(id).update({status:"completed"});
+}
+
+/* PWA SERVICE WORKER */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("service-worker.js");
 }
 </script>
 
