@@ -201,7 +201,7 @@ let allOrders=[];
 
 /* ================= LOAD HISTORY ================= */
 db.collection("orders")
-.where("status","==","COMPLETED")
+.where("status","in",["PAID","COMPLETED"])
 .orderBy("completedAt","desc")
 .onSnapshot(snapshot=>{
   allOrders=[];
