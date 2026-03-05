@@ -1,451 +1,485 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
+
 <meta charset="UTF-8">
-<title>Amovis Cafe – QR Digital Menu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Amovis Cafe Menu</title>
+
 <style>
-/* ================= BASE UI (UNCHANGED) ================= */
-*{box-sizing:border-box}
+
+*{
+box-sizing:border-box;
+}
+
 body{
-  margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(135deg,#ff9966,#ff5e62);
+margin:0;
+font-family:Arial;
+background:#111;
+color:#fff;
 }
+
 .header{
-  background:linear-gradient(90deg,#2b1a14,#4b2c1f);
-  color:#ffd966;
-  text-align:center;
-  padding:16px;
-  font-size:24px;
-  font-weight:800;
+background:#000;
+color:#ffd966;
+text-align:center;
+padding:18px;
+font-size:24px;
+font-weight:bold;
 }
-.customer-bar{
-  background:#fff;
-  padding:12px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+
+/* CUSTOMER INPUT */
+
+.customer{
+background:#222;
+padding:10px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+justify-content:center;
 }
-.customer-bar input{
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:15px;
+
+.customer input{
+padding:10px;
+border-radius:8px;
+border:none;
+width:180px;
+font-size:15px;
 }
+
+/* MENU */
+
 .container{
-  padding:14px;
-  padding-bottom:260px;
+max-width:900px;
+margin:auto;
+padding:15px;
+padding-bottom:220px;
 }
-.menu{
-  background:#2a1813;
-  color:#fff;
-  border-radius:20px;
-  padding:18px;
+
+.category{
+margin-top:25px;
+font-size:22px;
+color:#ffd966;
+border-bottom:2px solid #444;
+padding-bottom:5px;
 }
-.category{margin-bottom:26px}
-.category h2{
-  text-align:center;
-  color:#ffd966;
-  border-bottom:2px solid #444;
-  padding-bottom:6px;
-  margin-bottom:12px;
-}
+
 .item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  padding:8px 0;
-  border-bottom:1px dashed #444;
-}
-.item span{flex:1}
-.item button{
-  background:#28a745;
-  border:none;
-  color:#fff;
-  padding:8px 16px;
-  border-radius:20px;
-  cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+border-bottom:1px solid #333;
 }
 
-/* ================= CART ================= */
+.add-btn{
+background:#00c853;
+border:none;
+color:white;
+padding:6px 14px;
+border-radius:20px;
+cursor:pointer;
+}
+
+/* CART */
+
 .cart{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#fff;
-  border-top:4px solid #6a11cb;
-  padding:14px;
-  max-height:45vh;
-  overflow:auto;
-  box-shadow:0 -6px 20px rgba(0,0,0,.3);
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:white;
+color:black;
+padding:15px;
+max-height:45vh;
+overflow:auto;
 }
-.cart h3{
-  text-align:center;
-  margin:0 0 6px;
-}
+
 .cart-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:8px 0;
-  border-bottom:1px dashed #ddd;
-  font-size:14px;
+display:flex;
+justify-content:space-between;
+padding:6px 0;
 }
+
 .qty-btn{
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  border:none;
-  background:#6a11cb;
-  color:#fff;
-  font-size:18px;
+background:#2575fc;
+border:none;
+color:white;
+width:28px;
+height:28px;
+border-radius:50%;
+cursor:pointer;
+font-size:16px;
 }
-.total{
-  font-size:20px;
-  font-weight:bold;
-  text-align:right;
-}
+
 .place{
-  width:100%;
-  margin-top:10px;
-  padding:14px;
-  border:none;
-  border-radius:30px;
-  background:#2575fc;
-  color:#fff;
-  font-size:18px;
+width:100%;
+padding:14px;
+border:none;
+background:#2575fc;
+color:white;
+font-size:18px;
+border-radius:30px;
+margin-top:10px;
 }
 
-/* ================= POPUP ================= */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.modal-box{
-  background:#fff;
-  padding:26px;
-  border-radius:20px;
-  text-align:center;
+/* RESPONSIVE */
+
+@media(max-width:600px){
+
+.customer{
+flex-direction:column;
 }
 
-/* ===================================================== */
-/* ================= RESPONSIVE (ONLY ADDITION) ========= */
-/* ===================================================== */
-
-@media(max-width:768px){
-  .customer-bar{
-    grid-template-columns:1fr;
-  }
-  .header{
-    font-size:22px;
-    padding:14px;
-  }
-  .menu{
-    padding:14px;
-  }
-  .container{
-    padding-bottom:300px;
-  }
-  .cart{
-    max-height:50vh;
-  }
-  .item button{
-    padding:8px 12px;
-    font-size:13px;
-  }
+.customer input{
+width:100%;
 }
 
-@media(max-width:480px){
-  .header{
-    font-size:20px;
-  }
-  .cart{
-    max-height:55vh;
-    padding:12px;
-  }
-  .total{
-    font-size:18px;
-  }
-  .place{
-    font-size:16px;
-    padding:12px;
-  }
+.item{
+font-size:14px;
 }
-/* ================= END RESPONSIVE ================= */
+
+.add-btn{
+font-size:13px;
+padding:6px 10px;
+}
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="header">☕ Amovis Cafe – QR Digital Menu</div>
+<div class="header">☕ AMOVIS CAFE MENU</div>
 
-<div class="customer-bar">
-  <input id="custName" placeholder="Customer Name">
-  <input id="custMobile" placeholder="Mobile Number (10 digit)">
-</div>
+<div class="customer">
 
-<div class="container">
-<div class="menu">
+<input id="custName" placeholder="Customer Name">
 
-<!-- ================= CADBEE ================= -->
-<div class="category">
-<h2>🍫 Cadbee</h2>
-<div class="item"><span>White Choco Creame with Crush – ₹100</span><button onclick="addItem('White Choco Creame with Crush',100)">Add</button></div>
-<div class="item"><span>KitKat Choco Creame White Crush – ₹120</span><button onclick="addItem('KitKat Choco Creame White Crush',120)">Add</button></div>
-<div class="item"><span>Cadbee-B – ₹120</span><button onclick="addItem('Cadbee-B',120)">Add</button></div>
-<div class="item"><span>Cadbee Black / White – ₹120</span><button onclick="addItem('Cadbee Black White',120)">Add</button></div>
-<div class="item"><span>Dryfruit Choco Cadbee – ₹130</span><button onclick="addItem('Dryfruit Choco Cadbee',130)">Add</button></div>
-</div>
-
-<!-- ================= MASTANI ================= -->
-<div class="category">
-<h2>🥛 Mastani</h2>
-<div class="item"><span>Mango Mastani – ₹100</span><button onclick="addItem('Mango Mastani',100)">Add</button></div>
-<div class="item"><span>Mix Fruit Mastani – ₹100</span><button onclick="addItem('Mix Fruit Mastani',100)">Add</button></div>
-<div class="item"><span>Strawberry Mastani – ₹100</span><button onclick="addItem('Strawberry Mastani',100)">Add</button></div>
-<div class="item"><span>Butterscotch Mastani – ₹100</span><button onclick="addItem('Butterscotch Mastani',100)">Add</button></div>
-<div class="item"><span>Chocolate Mastani – ₹100</span><button onclick="addItem('Chocolate Mastani',100)">Add</button></div>
-<div class="item"><span>Dry Fruit Mastani – ₹120</span><button onclick="addItem('Dry Fruit Mastani',120)">Add</button></div>
-</div>
-
-<!-- ================= PIZZAS ================= -->
-<div class="category">
-<h2>🍕 Pizzas</h2>
-<div class="item"><span>Classic Cheese (S) – ₹120</span><button onclick="addItem('Classic Cheese S',120)">Add</button></div>
-<div class="item"><span>Classic Cheese (L) – ₹150</span><button onclick="addItem('Classic Cheese L',150)">Add</button></div>
-<div class="item"><span>Peri Peri (S) – ₹130</span><button onclick="addItem('Peri Peri Pizza S',130)">Add</button></div>
-<div class="item"><span>Peri Peri (L) – ₹170</span><button onclick="addItem('Peri Peri Pizza L',170)">Add</button></div>
-<div class="item"><span>Mushroom (S) – ₹140</span><button onclick="addItem('Mushroom Pizza S',140)">Add</button></div>
-<div class="item"><span>Mushroom (L) – ₹170</span><button onclick="addItem('Mushroom Pizza L',170)">Add</button></div>
-<div class="item"><span>Paneer Tikka (S) – ₹150</span><button onclick="addItem('Paneer Tikka Pizza S',150)">Add</button></div>
-<div class="item"><span>Paneer Tikka (L) – ₹180</span><button onclick="addItem('Paneer Tikka Pizza L',180)">Add</button></div>
-<div class="item"><span>Special Pizza (S) – ₹160</span><button onclick="addItem('Special Pizza S',160)">Add</button></div>
-<div class="item"><span>Special Pizza (L) – ₹210</span><button onclick="addItem('Special Pizza L',210)">Add</button></div>
-</div>
-
-<!-- ================= VEG RICE & NOODLES ================= -->
-<div class="category">
-<h2>🍚 Veg Rice & 🍜 Noodles</h2>
-<div class="item"><span>Fried Rice – ₹130</span><button onclick="addItem('Fried Rice',130)">Add</button></div>
-<div class="item"><span>Schezwan Rice – ₹150</span><button onclick="addItem('Schezwan Rice',150)">Add</button></div>
-<div class="item"><span>Manchurian Rice – ₹170</span><button onclick="addItem('Manchurian Rice',170)">Add</button></div>
-<div class="item"><span>Triple Rice – ₹180</span><button onclick="addItem('Triple Rice',180)">Add</button></div>
-<div class="item"><span>Singapore Rice – ₹200</span><button onclick="addItem('Singapore Rice',200)">Add</button></div>
-
-<div class="item"><span>Halka Noodles – ₹130</span><button onclick="addItem('Halka Noodles',130)">Add</button></div>
-<div class="item"><span>Schezwan Noodles – ₹150</span><button onclick="addItem('Schezwan Noodles',150)">Add</button></div>
-<div class="item"><span>Manchurian Noodles – ₹170</span><button onclick="addItem('Manchurian Noodles',170)">Add</button></div>
-<div class="item"><span>Singapore Noodles – ₹200</span><button onclick="addItem('Singapore Noodles',200)">Add</button></div>
-<div class="item"><span>Chowmein Noodles – ₹180</span><button onclick="addItem('Chowmein Noodles',180)">Add</button></div>
-</div>
-
-<!-- ================= PANIPURI & SNACKS ================= -->
-<div class="category">
-<h2>🥙 Panipuri & Snacks</h2>
-<div class="item"><span>Pani Puri – ₹30</span><button onclick="addItem('Pani Puri',30)">Add</button></div>
-<div class="item"><span>Shev Puri – ₹40</span><button onclick="addItem('Shev Puri',40)">Add</button></div>
-<div class="item"><span>Dahi Shev Puri – ₹50</span><button onclick="addItem('Dahi Shev Puri',50)">Add</button></div>
-<div class="item"><span>Dilli Chat Puri – ₹60</span><button onclick="addItem('Dilli Chat Puri',60)">Add</button></div>
-<div class="item"><span>Sukhi Bhel – ₹40</span><button onclick="addItem('Sukhi Bhel',40)">Add</button></div>
-<div class="item"><span>Oli Bhel – ₹50</span><button onclick="addItem('Oli Bhel',50)">Add</button></div>
-<div class="item"><span>Kurkuri Namkin Bhel – ₹80</span><button onclick="addItem('Kurkuri Namkin Bhel',80)">Add</button></div>
-<div class="item"><span>Chaynij Bhel – ₹120</span><button onclick="addItem('Chaynij Bhel',120)">Add</button></div>
-
-<div class="item"><span>Masala Papad – ₹30</span><button onclick="addItem('Masala Papad',30)">Add</button></div>
-<div class="item"><span>Pop Corn – ₹40</span><button onclick="addItem('Pop Corn',40)">Add</button></div>
-<div class="item"><span>Fruit Salad – ₹80</span><button onclick="addItem('Fruit Salad',80)">Add</button></div>
-<div class="item"><span>Manchav Soup – ₹80</span><button onclick="addItem('Manchav Soup',80)">Add</button></div>
-<div class="item"><span>Lasun Fry – ₹100</span><button onclick="addItem('Lasun Fry',100)">Add</button></div>
-</div>
-
-<!-- ================= PAV BHAJI ================= -->
-<div class="category">
-<h2>🍛 Pav Bhaji</h2>
-<div class="item"><span>Pav Bhaji – ₹60</span><button onclick="addItem('Pav Bhaji',60)">Add</button></div>
-<div class="item"><span>Cheese Pav Bhaji – ₹80</span><button onclick="addItem('Cheese Pav Bhaji',80)">Add</button></div>
-</div>
-
-<!-- ================= MOCKTAILS & HOT ================= -->
-<div class="category">
-<h2>🍹 Mocktails & ☕ Hot</h2>
-<div class="item"><span>Mojito – ₹100</span><button onclick="addItem('Mojito',100)">Add</button></div>
-<div class="item"><span>Le Blue – ₹100</span><button onclick="addItem('Le Blue',100)">Add</button></div>
-<div class="item"><span>Cucumber Lime – ₹100</span><button onclick="addItem('Cucumber Lime',100)">Add</button></div>
-<div class="item"><span>Lemon Ice Tea – ₹100</span><button onclick="addItem('Lemon Ice Tea',100)">Add</button></div>
-<div class="item"><span>Water Melon – ₹100</span><button onclick="addItem('Water Melon',100)">Add</button></div>
-<div class="item"><span>Cocktail – ₹100</span><button onclick="addItem('Cocktail',100)">Add</button></div>
-
-<div class="item"><span>Tea – ₹20</span><button onclick="addItem('Tea',20)">Add</button></div>
-<div class="item"><span>Hot Coffee – ₹30</span><button onclick="addItem('Hot Coffee',30)">Add</button></div>
-<div class="item"><span>Hot Chocolate – ₹40</span><button onclick="addItem('Hot Chocolate',40)">Add</button></div>
-</div>
-
-<!-- ================= ICE CREAM & SHAKE ================= -->
-<div class="category">
-<h2>🍨 Ice Cream & 🥤 Shake</h2>
-<div class="item"><span>Vanilla – ₹60</span><button onclick="addItem('Ice Cream Vanilla',60)">Add</button></div>
-<div class="item"><span>Chocolate – ₹60</span><button onclick="addItem('Ice Cream Chocolate',60)">Add</button></div>
-<div class="item"><span>Strawberry – ₹60</span><button onclick="addItem('Ice Cream Strawberry',60)">Add</button></div>
-<div class="item"><span>Butterscotch – ₹60</span><button onclick="addItem('Ice Cream Butterscotch',60)">Add</button></div>
-<div class="item"><span>Mango – ₹70</span><button onclick="addItem('Ice Cream Mango',70)">Add</button></div>
-<div class="item"><span>Pista – ₹70</span><button onclick="addItem('Ice Cream Pista',70)">Add</button></div>
-<div class="item"><span>American Nuts – ₹70</span><button onclick="addItem('Ice Cream American Nuts',70)">Add</button></div>
-
-<div class="item"><span>Vanilla Shake – ₹80</span><button onclick="addItem('Vanilla Shake',80)">Add</button></div>
-<div class="item"><span>Chocolate Shake – ₹80</span><button onclick="addItem('Chocolate Shake',80)">Add</button></div>
-<div class="item"><span>Oreo Shake – ₹80</span><button onclick="addItem('Oreo Shake',80)">Add</button></div>
-<div class="item"><span>KitKat Shake – ₹80</span><button onclick="addItem('KitKat Shake',80)">Add</button></div>
-<div class="item"><span>Dry Fruit Shake – ₹90</span><button onclick="addItem('Dry Fruit Shake',90)">Add</button></div>
-</div>
-
-<!-- ================= PASTA, SANDWICH, GARLIC BREAD ================= -->
-<div class="category">
-<h2>🍝 Pasta • 🥪 Sandwich • 🧄 Garlic Bread</h2>
-<div class="item"><span>White Sauce Pasta – ₹100</span><button onclick="addItem('White Sauce Pasta',100)">Add</button></div>
-<div class="item"><span>Red Sauce Pasta – ₹120</span><button onclick="addItem('Red Sauce Pasta',120)">Add</button></div>
-<div class="item"><span>Schezwan Pasta – ₹120</span><button onclick="addItem('Schezwan Pasta',120)">Add</button></div>
-
-<div class="item"><span>Plain Sandwich – ₹50</span><button onclick="addItem('Plain Sandwich',50)">Add</button></div>
-<div class="item"><span>Cheese Grill Sandwich – ₹90</span><button onclick="addItem('Cheese Grill Sandwich',90)">Add</button></div>
-<div class="item"><span>Special Sandwich – ₹110</span><button onclick="addItem('Special Sandwich',110)">Add</button></div>
-
-<div class="item"><span>Garlic Bread – ₹80</span><button onclick="addItem('Garlic Bread',80)">Add</button></div>
-<div class="item"><span>Cheese Garlic Bread – ₹100</span><button onclick="addItem('Cheese Garlic Bread',100)">Add</button></div>
-</div>
+<input id="custMobile"
+placeholder="Mobile Number"
+maxlength="10"
+inputmode="numeric"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')">
 
 </div>
-</div>
+
+<div class="container" id="menu"></div>
 
 <div class="cart">
-<h3>🛒 Your Cart</h3>
-<div id="cartDiv"></div>
-<div class="total">Total ₹ <span id="total">0</span></div>
-<button class="place" onclick="placeOrder()">PLACE ORDER</button>
+
+<h3>🛒 Cart</h3>
+
+<div id="cart"></div>
+
+<div>Total ₹ <span id="total">0</span></div>
+
+<button class="place" onclick="placeOrder()">Place Order</button>
+
 </div>
 
-<div id="popup" class="modal">
-  <div class="modal-box">
-    <h2>✅ Order Added</h2>
-    <p>Kitchen received your order</p>
-  </div>
-</div>
 
-<!-- 🔥 FIREBASE + LOGIC (100% SAME) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ❗ JS LOGIC EXACT SAME – NOT TOUCHED */
+
 firebase.initializeApp({
-  apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
-  authDomain:"amovis-cafe-booking.firebaseapp.com",
-  projectId:"amovis-cafe-booking"
-});
-const db=firebase.firestore();
+apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+authDomain:"amovis-cafe-booking.firebaseapp.com",
+projectId:"amovis-cafe-booking"
+})
 
-/* QR DATA */
-const params=new URLSearchParams(location.search);
-const orderType=params.get("type")||"direct";
-const orderNo=params.get("no")||"-";
+const db=firebase.firestore()
 
-/* AUTO FILL */
-db.collection("orders")
-.where("type","==",orderType)
-.where("no","==",orderNo)
-.where("status","in",["new","accepted"])
-.limit(1)
-.get()
-.then(snap=>{
-  if(!snap.empty){
-    const d=snap.docs[0].data();
-    custName.value=d.customerName;
-    custMobile.value=d.customerMobile;
-    custName.disabled=true;
-    custMobile.disabled=true;
-  }
-});
+const menuData={
+"CHAAT":[
+["पाणी पुरी",30],
+["शेव पुरी",40],
+["दही शेव पुरी",50],
+["सुखी भेळ",40],
+["ओली भेळ",50],
+["मकापोहे नमकिन भेळ",50],
+["पावभाजी",60],
+["चिज पावभाजी",80]
+],
 
-/* CART LOGIC */
-let cartData={};
-const cartDiv=document.getElementById("cartDiv");
-const totalSpan=document.getElementById("total");
+"PIZZA":[
+["मिनी चिझ पिझ्झा",100],
+["क्लासिक चिज पिझ्झा",150],
+["चॉकलेट पिझ्झा",160],
+["पेरीपेरी पिझ्झा",170],
+["मशरून पिझ्झा",170],
+["शेजवान पिझ्झा",170],
+["चिज मार्गरिटा",180],
+["इटालीन ओनीयन टोमॅटो",190],
+["ओनियन कॅप्सीकम",190],
+["चिज कॉर्न पिझ्झा",190],
+["पनिर टिक्का पिझ्झा",180],
+["तंदुरी पनिर पिझ्झा",200],
+["स्पेशल पिझ्झा",210],
+["फार्महाऊस पिझ्झा",200],
+["कूलड पिझ्झा",70],
+["चीज ब्रेड पिझा",80]
+],
+
+"BURGER":[
+["क्लासिक बर्गर",60],
+["चिज बर्गर",90],
+["तंदुरी बर्गर",90],
+["पेरी पेरी बर्गर",90],
+["पनिर बर्गर",90],
+["चिज कॉर्न बर्गर",90],
+["क्रंची बर्गर",100],
+["डबल टिक्की बर्गर",120],
+["स्पेशल बर्गर",120],
+["Cabbage चिज बर्गर",90]
+],
+
+"SANDWICH":[
+["व्हेज ग्रिल सँडविच",80],
+["चिज ग्रिल सँडविच",100],
+["पनिर ग्रिल सँडविच",100],
+["कॉर्न ग्रिल सँडविच",100],
+["तंदुरी चिज ग्रिल सँडविच",100],
+["चॉकलेट सँडविच",100],
+["स्पेशल सँडविच",100]
+],
+
+"FRIES":[
+["फ्लेन फ्राईज",90],
+["मसाला फ्राईज",100],
+["पेरी पेरी फ्राईज",100],
+["तंदुरी चिज फ्राईज",110]
+],
+
+"GARLIC BREAD":[
+["गार्लिक ब्रेड",80],
+["चिज गार्लिक ब्रेड",100]
+],
+
+"MOMOS":[
+["पनिर मोमोज",160],
+["फ्राय मोमोज",180],
+["चिली मोमोज",180],
+["क्रिस्पी मोमोज",200]
+],
+
+"PASTA":[
+["व्हाईट सॉस पास्ता",100],
+["रेड सॉस पास्ता",120],
+["सेजवान पास्ता",120]
+],
+
+"MAGGI":[
+["प्लेन मॅगी",50],
+["मसाला चिज मॅगी",70],
+["कॉर्न चिज मॅगी",70]
+],
+
+"BROWNIE":[
+["व्हायलेट ब्राऊनी",130],
+["ड्रायफुड ब्राऊनी",140]
+],
+
+"COFFEE":[
+["कोल्ड कॉफी",50],
+["कोल्ड कॉफी विथ क्रश",70],
+["कोल्ड कॉफी विथ आईसक्रिम",90],
+["थिक कोल्ड कॉफी",60],
+["थिक कोल्ड कॉफी विथ क्रश",70],
+["थिक कोल्ड कॉफी विथ आईसक्रिम",90],
+["किट कॅट कॉफी",70],
+["किट कॅट कॉफी विथ क्रश",90],
+["किट कॅट कॉफी विथ आईसक्रिम",100],
+["ओरेओ कॉफी",70],
+["ओरेओ कॉफी विथ क्रश",90],
+["ओरेओ कॉफी विथ आईसक्रिम",100]
+],
+
+"ICE CREAM":[
+["व्हॉनिला",60],
+["चॉकलेट",60],
+["स्ट्रॉबेरी",60],
+["बटर स्कॉच",60],
+["मँगो",70],
+["पिस्ता",70],
+["ड्रायफुड्स",70]
+],
+
+"SHAKES":[
+["व्हॉनिला",80],
+["बटरक्काच",80],
+["स्ट्रॉबेरी",80],
+["पिस्ता",80],
+["चॉकलेट",80],
+["ओरेओ",80],
+["किटकॉट",80],
+["पिईनॉपल",80],
+["मँगो",80],
+["मिक्स फुड्स",80],
+["ड्राय फुड्स",90]
+],
+
+"MASTANI":[
+["मँगो",100],
+["मिक्स फुड्स",100],
+["बटरक्वाँच",100],
+["स्ट्रॉबेरी",100],
+["व्हॉनिला",100],
+["ड्राय फुड्स",100]
+],
+
+"CADBEE":[
+["व्हॉईट चोको क्रिम विथ क्रश",100],
+["किट कॅट चोको क्रिम विथ क्रश",120],
+["कॅडबि",120]
+],
+
+"HOT COFFEE":[
+["हॉट कॉफी",30],
+["हॉट चॉकलेट",40]
+],
+
+"MOCKTAIL":[
+["मोजीतो",100],
+["ले ब्लु",100],
+["लेमन आईस टि",100],
+["वॉटर मिलन",100]
+],
+
+"CHINESE":[
+["व्हेज मंच्युरीअन",130],
+["पनिर मंच्युरीअन",150],
+["पनिर चिल्ली",150],
+["पोटॅटो चिल्ली",150],
+["फ्राईड राईस",120],
+["सेजवान राईस",140],
+["मंच्युरीअन राईस",150],
+["सिंगापुरी राईस",160],
+["हक्का न्युडल्स",120],
+["सेजवान न्युडल्स",140],
+["सिंगापुरी न्युडल्स",160]
+]
+}
+
+let menu=document.getElementById("menu")
+
+for(let cat in menuData){
+
+menu.innerHTML+=`<div class="category">${cat}</div>`
+
+menuData[cat].forEach(i=>{
+
+menu.innerHTML+=`
+<div class="item">
+${i[0]} ₹${i[1]}
+<button class="add-btn" onclick="addItem('${i[0]}',${i[1]})">ADD</button>
+</div>`
+
+})
+
+}
+
+let cart={}
 
 function addItem(name,price){
-  cartData[name]?cartData[name].qty++:cartData[name]={price,qty:1};
-  render();
+
+if(cart[name]) cart[name].qty++
+else cart[name]={price,qty:1}
+
+render()
+
 }
-function changeQty(name,d){
-  cartData[name].qty+=d;
-  if(cartData[name].qty<=0) delete cartData[name];
-  render();
+
+function changeQty(name,val){
+
+cart[name].qty+=val
+
+if(cart[name].qty<=0)
+delete cart[name]
+
+render()
+
 }
+
 function render(){
-  cartDiv.innerHTML="";
-  let t=0;
-  for(let n in cartData){
-    let i=cartData[n],a=i.price*i.qty;
-    t+=a;
-    cartDiv.innerHTML+=`
-      <div class="cart-item">
-        <span>${n} × ${i.qty}</span>
-        <div>
-          <button class="qty-btn" onclick="changeQty('${n}',-1)">−</button>
-          <button class="qty-btn" onclick="changeQty('${n}',1)">+</button>
-        </div>
-      </div>`;
-  }
-  totalSpan.innerText=t;
+
+let div=document.getElementById("cart")
+let total=0
+
+div.innerHTML=""
+
+for(let i in cart){
+
+let item=cart[i]
+
+total+=item.price*item.qty
+
+div.innerHTML+=`
+<div class="cart-item">
+
+<span>${i} x ${item.qty}</span>
+
+<div>
+
+<button class="qty-btn"
+onclick="changeQty('${i}',-1)">-</button>
+
+<button class="qty-btn"
+onclick="changeQty('${i}',1)">+</button>
+
+</div>
+
+</div>
+`
+
 }
 
-/* PLACE ORDER */
+document.getElementById("total").innerText=total
+
+}
+
 function placeOrder(){
-  const name=custName.value.trim();
-  const mobile=custMobile.value.trim();
-  if(!name||!/^[6-9]\d{9}$/.test(mobile)||!Object.keys(cartData).length){
-    alert("Fill details & add items");return;
-  }
 
-  db.collection("orders")
-  .where("customerMobile","==",mobile)
-  .where("type","==",orderType)
-  .where("no","==",orderNo)
-  .where("status","in",["new","accepted"])
-  .limit(1)
-  .get()
-  .then(snap=>{
-    if(!snap.empty){
-      const doc=snap.docs[0];
-      let old=doc.data().items;
-      for(let n in cartData){
-        old[n]?old[n].qty+=cartData[n].qty:old[n]=cartData[n];
-      }
-      return doc.ref.update({items:old});
-    }else{
-      return db.collection("orders").add({
-        customerName:name,
-        customerMobile:mobile,
-        items:cartData,
-        status:"new",
-        type:orderType,
-        no:orderNo,
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-  })
-  .then(()=>{
-    cartData={};render();
-    popup.style.display="flex";
-    setTimeout(()=>popup.style.display="none",2000);
-  });
+let name=document.getElementById("custName").value.trim()
+let mobile=document.getElementById("custMobile").value.trim()
+
+if(name===""){
+alert("नाव टाका")
+return
 }
+
+if(mobile.length!==10){
+alert("मोबाईल नंबर 10 अंकांचा असावा")
+return
+}
+
+if(Object.keys(cart).length===0){
+alert("Item add करा")
+return
+}
+
+db.collection("orders").add({
+
+customerName:name,
+customerMobile:mobile,
+items:cart,
+status:"new",
+createdAt:firebase.firestore.FieldValue.serverTimestamp()
+
+})
+
+alert("Order Sent To Kitchen")
+
+cart={}
+render()
+
+}
+
 </script>
 
 </body>
