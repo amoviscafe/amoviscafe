@@ -9,9 +9,7 @@
 
 <style>
 
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
 margin:0;
@@ -29,8 +27,6 @@ font-size:24px;
 font-weight:bold;
 }
 
-/* CUSTOMER INPUT */
-
 .customer{
 background:#222;
 padding:10px;
@@ -47,8 +43,6 @@ border:none;
 width:180px;
 font-size:15px;
 }
-
-/* MENU */
 
 .container{
 max-width:900px;
@@ -82,8 +76,6 @@ border-radius:20px;
 cursor:pointer;
 }
 
-/* CART */
-
 .cart{
 position:fixed;
 bottom:0;
@@ -110,7 +102,6 @@ width:28px;
 height:28px;
 border-radius:50%;
 cursor:pointer;
-font-size:16px;
 }
 
 .place{
@@ -124,8 +115,6 @@ border-radius:30px;
 margin-top:10px;
 }
 
-/* RESPONSIVE */
-
 @media(max-width:600px){
 
 .customer{
@@ -138,11 +127,6 @@ width:100%;
 
 .item{
 font-size:14px;
-}
-
-.add-btn{
-font-size:13px;
-padding:6px 10px;
 }
 
 }
@@ -195,7 +179,42 @@ projectId:"amovis-cafe-booking"
 
 const db=firebase.firestore()
 
+/* QR LOGIC */
+
+const params=new URLSearchParams(location.search)
+
+const orderType=params.get("type") || "direct"
+
+const orderNo=params.get("no") || "-"
+
+/* AUTO FILL CUSTOMER */
+
+db.collection("orders")
+.where("type","==",orderType)
+.where("no","==",orderNo)
+.where("status","in",["new","accepted"])
+.limit(1)
+.get()
+.then(snap=>{
+
+if(!snap.empty){
+
+const d=snap.docs[0].data()
+
+custName.value=d.customerName
+custMobile.value=d.customerMobile
+
+custName.disabled=true
+custMobile.disabled=true
+
+}
+
+})
+
+/* MENU DATA */
+
 const menuData={
+
 "CHAAT":[
 ["पाणी पुरी",30],
 ["शेव पुरी",40],
@@ -364,7 +383,10 @@ const menuData={
 ["सेजवान न्युडल्स",140],
 ["सिंगापुरी न्युडल्स",160]
 ]
+
 }
+
+/* BUILD MENU */
 
 let menu=document.getElementById("menu")
 
@@ -384,12 +406,13 @@ ${i[0]} ₹${i[1]}
 
 }
 
+/* CART */
+
 let cart={}
 
 function addItem(name,price){
 
-if(cart[name]) cart[name].qty++
-else cart[name]={price,qty:1}
+cart[name]?cart[name].qty++:cart[name]={price,qty:1}
 
 render()
 
@@ -421,27 +444,20 @@ total+=item.price*item.qty
 
 div.innerHTML+=`
 <div class="cart-item">
-
 <span>${i} x ${item.qty}</span>
-
 <div>
-
-<button class="qty-btn"
-onclick="changeQty('${i}',-1)">-</button>
-
-<button class="qty-btn"
-onclick="changeQty('${i}',1)">+</button>
-
+<button class="qty-btn" onclick="changeQty('${i}',-1)">-</button>
+<button class="qty-btn" onclick="changeQty('${i}',1)">+</button>
 </div>
-
-</div>
-`
+</div>`
 
 }
 
 document.getElementById("total").innerText=total
 
 }
+
+/* PLACE ORDER */
 
 function placeOrder(){
 
@@ -453,8 +469,8 @@ alert("नाव टाका")
 return
 }
 
-if(mobile.length!==10){
-alert("मोबाईल नंबर 10 अंकांचा असावा")
+if(!/^[6-9]\d{9}$/.test(mobile)){
+alert("योग्य मोबाईल नंबर टाका")
 return
 }
 
@@ -463,20 +479,59 @@ alert("Item add करा")
 return
 }
 
-db.collection("orders").add({
+/* SAME ORDER CHECK */
+
+db.collection("orders")
+.where("customerMobile","==",mobile)
+.where("type","==",orderType)
+.where("no","==",orderNo)
+.where("status","in",["new","accepted"])
+.limit(1)
+.get()
+.then(snap=>{
+
+if(!snap.empty){
+
+const doc=snap.docs[0]
+
+let old=doc.data().items
+
+for(let n in cart){
+
+old[n]?old[n].qty+=cart[n].qty:old[n]=cart[n]
+
+}
+
+return doc.ref.update({items:old})
+
+}
+
+else{
+
+return db.collection("orders").add({
 
 customerName:name,
 customerMobile:mobile,
 items:cart,
 status:"new",
+type:orderType,
+no:orderNo,
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 
 })
+
+}
+
+})
+
+.then(()=>{
 
 alert("Order Sent To Kitchen")
 
 cart={}
 render()
+
+})
 
 }
 
