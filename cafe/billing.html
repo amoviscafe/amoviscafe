@@ -8,182 +8,211 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
+
 *{box-sizing:border-box}
+
 body{
-  margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background:linear-gradient(135deg,#141e30,#243b55);
-  color:#fff;
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#141e30,#243b55);
+color:#fff;
 }
+
 .header{
-  background:linear-gradient(90deg,#f7971e,#ffd200);
-  color:#000;
-  padding:14px;
-  text-align:center;
-  font-size:24px;
-  font-weight:900;
+background:linear-gradient(90deg,#f7971e,#ffd200);
+color:#000;
+padding:14px;
+text-align:center;
+font-size:24px;
+font-weight:900;
 }
+
 .container{
-  max-width:1100px;
-  margin:auto;
-  padding:14px;
+max-width:1100px;
+margin:auto;
+padding:14px;
 }
+
 .bill-card{
-  background:#1f1f1f;
-  border-radius:20px;
-  padding:16px;
-  margin-bottom:22px;
-  box-shadow:0 10px 25px rgba(0,0,0,.6);
-  position:relative;
+background:#1f1f1f;
+border-radius:20px;
+padding:16px;
+margin-bottom:22px;
+box-shadow:0 10px 25px rgba(0,0,0,.6);
+position:relative;
 }
+
 .place-badge{
-  position:absolute;
-  top:-14px;
-  left:50%;
-  transform:translateX(-50%);
-  background:linear-gradient(90deg,#7f00ff,#e100ff);
-  padding:6px 22px;
-  border-radius:24px;
-  font-size:16px;
-  font-weight:900;
+position:absolute;
+top:-14px;
+left:50%;
+transform:translateX(-50%);
+background:linear-gradient(90deg,#7f00ff,#e100ff);
+padding:6px 22px;
+border-radius:24px;
+font-size:16px;
+font-weight:900;
 }
+
 .customer{
-  margin-top:22px;
-  background:#0f172a;
-  padding:10px;
-  border-radius:12px;
-  text-align:center;
+margin-top:22px;
+background:#0f172a;
+padding:10px;
+border-radius:12px;
+text-align:center;
 }
+
 .customer .name{
-  font-size:18px;
-  font-weight:900;
-  color:#38bdf8;
+font-size:18px;
+font-weight:900;
+color:#38bdf8;
 }
+
 .customer .mobile{
-  font-size:14px;
-  color:#a5f3fc;
+font-size:14px;
+color:#a5f3fc;
 }
+
 .item{
-  display:grid;
-  grid-template-columns:1fr auto auto;
-  gap:8px;
-  padding:6px 0;
-  border-bottom:1px dashed #444;
-  font-size:14px;
+display:grid;
+grid-template-columns:1fr auto auto;
+gap:8px;
+padding:6px 0;
+border-bottom:1px dashed #444;
+font-size:14px;
 }
+
 .item.manual-item{
-  background:linear-gradient(90deg,#6d28d9,#9333ea);
-  padding:6px;
-  border-radius:8px;
-  font-weight:900;
+background:linear-gradient(90deg,#6d28d9,#9333ea);
+padding:6px;
+border-radius:8px;
+font-weight:900;
 }
+
 .price{color:#22c55e;font-weight:900}
+
 .del{
-  width:22px;height:22px;
-  border-radius:50%;
-  border:none;
-  background:#ef4444;
-  color:#fff;
-  cursor:pointer;
+width:22px;height:22px;
+border-radius:50%;
+border:none;
+background:#ef4444;
+color:#fff;
+cursor:pointer;
 }
+
 .manual{
-  margin-top:10px;
-  background:#111;
-  padding:10px;
-  border-radius:12px;
+margin-top:10px;
+background:#111;
+padding:10px;
+border-radius:12px;
 }
+
 .manual-title{
-  color:#22d3ee;
-  font-weight:800;
-  margin-bottom:6px;
+color:#22d3ee;
+font-weight:800;
+margin-bottom:6px;
 }
+
 .manual-row{
-  display:grid;
-  grid-template-columns:2fr 1fr 1fr;
-  gap:6px;
+display:grid;
+grid-template-columns:2fr 1fr 1fr;
+gap:6px;
 }
+
 .manual-row input{
-  padding:6px;
-  border-radius:6px;
-  border:none;
+padding:6px;
+border-radius:6px;
+border:none;
 }
+
 .add-btn{
-  margin-top:8px;
-  width:100%;
-  padding:8px;
-  border:none;
-  border-radius:14px;
-  background:#00c6ff;
-  font-weight:900;
+margin-top:8px;
+width:100%;
+padding:8px;
+border:none;
+border-radius:14px;
+background:#00c6ff;
+font-weight:900;
 }
+
 .total{
-  text-align:right;
-  font-size:20px;
-  font-weight:900;
-  color:#22c55e;
-  margin-top:10px;
+text-align:right;
+font-size:20px;
+font-weight:900;
+color:#22c55e;
+margin-top:10px;
 }
+
 .actions{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  margin-top:12px;
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:8px;
+margin-top:12px;
 }
+
 .btn{
-  padding:9px;
-  border:none;
-  border-radius:18px;
-  font-size:13px;
-  font-weight:900;
-  cursor:pointer;
+padding:9px;
+border:none;
+border-radius:18px;
+font-size:13px;
+font-weight:900;
+cursor:pointer;
 }
+
 .qrbtn{background:#0ea5e9}
-.imgbtn{background:#f97316}
 .whatsapp{background:#22c55e}
+.printbtn{background:#6366f1}
 .pay{background:#fde047;color:#000}
+
 .qr-box{
-  margin-top:10px;
-  background:#fff;
-  padding:10px;
-  border-radius:12px;
-  display:none;
-  text-align:center;
+margin-top:10px;
+background:#fff;
+padding:10px;
+border-radius:12px;
+display:none;
+text-align:center;
 }
+
 .empty{
-  text-align:center;
-  font-size:18px;
-  color:#ccc;
-  margin-top:60px;
+text-align:center;
+font-size:18px;
+color:#ccc;
+margin-top:60px;
 }
+
 .popup{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
 }
+
 .popup-box{
-  background:#fff;
-  padding:28px;
-  border-radius:22px;
-  text-align:center;
-  color:#111;
-  width:260px;
+background:#fff;
+padding:28px;
+border-radius:22px;
+text-align:center;
+color:#111;
+width:260px;
 }
+
 .popup-box .tick{
-  width:60px;height:60px;
-  background:#22c55e;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  font-size:30px;
-  margin:0 auto 12px;
+width:60px;height:60px;
+background:#22c55e;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#fff;
+font-size:30px;
+margin:0 auto 12px;
 }
+
 canvas{display:none}
+
 </style>
 </head>
 
@@ -192,15 +221,15 @@ canvas{display:none}
 <div class="header">💳 AMOVIS CAFE – BILLING</div>
 
 <div class="container">
-  <div id="bills" class="empty">⌛ Waiting for bills…</div>
+<div id="bills" class="empty">⌛ Waiting for bills…</div>
 </div>
 
 <div id="successPopup" class="popup">
-  <div class="popup-box">
-    <div class="tick">✔</div>
-    <h3>Payment Successful</h3>
-    <p>Order moved to history</p>
-  </div>
+<div class="popup-box">
+<div class="tick">✔</div>
+<h3>Payment Successful</h3>
+<p>Order moved to history</p>
+</div>
 </div>
 
 <canvas id="billCanvas"></canvas>
@@ -209,74 +238,90 @@ canvas{display:none}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+
 firebase.initializeApp({
-  apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
-  authDomain:"amovis-cafe-booking.firebaseapp.com",
-  projectId:"amovis-cafe-booking"
+apiKey:"AIzaSyBymiTjjqUN-AAspzoA_bOGUWOzEc9o3jA",
+authDomain:"amovis-cafe-booking.firebaseapp.com",
+projectId:"amovis-cafe-booking"
 });
+
 const db=firebase.firestore();
 const billsDiv=document.getElementById("bills");
 
 const OWNER_UPI="amoviscafe@upi";
 const OWNER_NAME="Amovis Cafe";
 
-/* 🔥 MERGED BILLING LOGIC */
 db.collection("orders").where("status","==","completed")
 .onSnapshot(snapshot=>{
-  billsDiv.innerHTML="";
-  if(snapshot.empty){
-    billsDiv.innerHTML='<div class="empty">No Bills</div>';
-    return;
-  }
 
-  const grouped={};
+billsDiv.innerHTML="";
 
-  snapshot.forEach(doc=>{
-    const d=doc.data();
-    const key=(d.type||"direct")+"_"+(d.no||"");
+if(snapshot.empty){
+billsDiv.innerHTML='<div class="empty">No Bills</div>';
+return;
+}
 
-    if(!grouped[key]){
-      grouped[key]={
-        docIds:[],
-        type:d.type,
-        no:d.no,
-        customerName:d.customerName,
-        customerMobile:d.customerMobile,
-        items:{}
-      };
-    }
+const grouped={};
 
-    grouped[key].docIds.push(doc.id);
+snapshot.forEach(doc=>{
 
-    for(let n in d.items){
-      const it=d.items[n];
-      if(grouped[key].items[n]){
-        grouped[key].items[n].qty+=it.qty;
-      }else{
-        grouped[key].items[n]={...it};
-      }
-    }
-  });
+const d=doc.data();
+const key=(d.type||"direct")+"_"+(d.no||"");
 
-  Object.values(grouped).forEach(g=>{
-    const place=g.type&&g.no?`${g.type.toUpperCase()} ${g.no}`:"DIRECT";
-    let itemsHTML="",total=0,waText="";
+if(!grouped[key]){
+grouped[key]={
+docIds:[],
+type:d.type,
+no:d.no,
+customerName:d.customerName,
+customerMobile:d.customerMobile,
+items:{}
+};
+}
 
-    for(let n in g.items){
-      const i=g.items[n];
-      const amt=i.price*i.qty;
-      total+=amt;
-      const manualClass=i.addedBy==="billing"?"manual-item":"";
-      itemsHTML+=`
-      <div class="item ${manualClass}">
-        <span>${n} × ${i.qty}</span>
-        <span class="price">₹${amt}</span>
-        <button class="del" onclick="removeItem('${g.docIds[0]}','${n}')">×</button>
-      </div>`;
-      waText+=`• ${n} x${i.qty} = ₹${amt}\n`;
-    }
+grouped[key].docIds.push(doc.id);
 
-    const waBill=
+for(let n in d.items){
+
+const it=d.items[n];
+
+if(grouped[key].items[n]){
+grouped[key].items[n].qty+=it.qty;
+}else{
+grouped[key].items[n]={...it};
+}
+
+}
+
+});
+
+Object.values(grouped).forEach(g=>{
+
+const place=g.type&&g.no?`${g.type.toUpperCase()} ${g.no}`:"DIRECT";
+
+let itemsHTML="",total=0,waText="",printItems="";
+
+for(let n in g.items){
+
+const i=g.items[n];
+const amt=i.price*i.qty;
+total+=amt;
+
+const manualClass=i.addedBy==="billing"?"manual-item":"";
+
+itemsHTML+=`
+<div class="item ${manualClass}">
+<span>${n} × ${i.qty}</span>
+<span class="price">₹${amt}</span>
+<button class="del" onclick="removeItem('${g.docIds[0]}','${n}')">×</button>
+</div>`;
+
+waText+=`• ${n} x${i.qty} = ₹${amt}\n`;
+printItems+=`${n} x${i.qty}  ₹${amt}\n`;
+
+}
+
+const waBill=
 `☕ AMOVIS CAFE
 ---------------------
 👤 ${g.customerName}
@@ -284,94 +329,195 @@ db.collection("orders").where("status","==","completed")
 📍 ${place}
 
 ${waText}
+
 ---------------------
 💰 TOTAL ₹${total}
 
 Thank you 😊`;
 
-    billsDiv.innerHTML+=`
-    <div class="bill-card">
-      <div class="place-badge">${place}</div>
+billsDiv.innerHTML+=`
 
-      <div class="customer">
-        <div class="name">👤 ${g.customerName}</div>
-        <div class="mobile">📞 ${g.customerMobile}</div>
-      </div>
+<div class="bill-card">
 
-      ${itemsHTML}
+<div class="place-badge">${place}</div>
 
-      <div class="manual">
-        <div class="manual-title">➕ Manual Item</div>
-        <div class="manual-row">
-          <input id="n-${g.docIds[0]}" placeholder="Item">
-          <input id="p-${g.docIds[0]}" type="number" placeholder="Price">
-          <input id="q-${g.docIds[0]}" type="number" value="1">
-        </div>
-        <button class="add-btn" onclick="addManual('${g.docIds[0]}')">ADD</button>
-      </div>
+<div class="customer">
+<div class="name">👤 ${g.customerName}</div>
+<div class="mobile">📞 ${g.customerMobile}</div>
+</div>
 
-      <div class="total">TOTAL ₹ ${total}</div>
+${itemsHTML}
 
-      <div class="actions">
-        <button class="btn qrbtn" onclick="generateQR('${g.docIds[0]}',${total})">📷 QR</button>
-        <button class="btn whatsapp" onclick="sendWhatsApp('${g.customerMobile}',\`${waBill}\`)">💬 WhatsApp</button>
-        <button class="btn pay" onclick="markPaid('${g.docIds[0]}')">✅ DONE</button>
-      </div>
+<div class="manual">
+<div class="manual-title">➕ Manual Item</div>
 
-      <div class="qr-box" id="qr-${g.docIds[0]}"></div>
-    </div>`;
-  });
+<div class="manual-row">
+<input id="n-${g.docIds[0]}" placeholder="Item">
+<input id="p-${g.docIds[0]}" type="number" placeholder="Price">
+<input id="q-${g.docIds[0]}" type="number" value="1">
+</div>
+
+<button class="add-btn" onclick="addManual('${g.docIds[0]}')">
+ADD
+</button>
+
+</div>
+
+<div class="total">TOTAL ₹ ${total}</div>
+
+<div class="actions">
+
+<button class="btn qrbtn"
+onclick="generateQR('${g.docIds[0]}',${total})">
+📷 QR
+</button>
+
+<button class="btn whatsapp"
+onclick="sendWhatsApp('${g.customerMobile}',\`${waBill}\`)">
+💬 WhatsApp
+</button>
+
+<button class="btn printbtn"
+onclick="printBill('${g.customerName}','${g.customerMobile}','${place}',\`${printItems}\`,${total})">
+🖨 Print
+</button>
+
+<button class="btn pay"
+onclick="markPaid('${g.docIds[0]}')">
+✅ DONE
+</button>
+
+</div>
+
+<div class="qr-box" id="qr-${g.docIds[0]}"></div>
+
+</div>
+`;
+
 });
 
-/* MANUAL ADD */
+});
+
+function printBill(name,mobile,place,items,total){
+
+const d=new Date();
+
+const win=window.open("","","width=350,height=600");
+
+win.document.write(`
+
+<html>
+<head>
+
+<style>
+body{
+font-family:monospace;
+width:300px;
+margin:auto;
+}
+
+.center{text-align:center}
+.line{border-top:1px dashed black;margin:6px 0}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="center">
+<h3>AMOVIS CAFE</h3>
+</div>
+
+<div class="line"></div>
+
+Customer : ${name}<br>
+Mobile : ${mobile}<br>
+Place : ${place}<br>
+Date : ${d.toLocaleDateString()}<br>
+Time : ${d.toLocaleTimeString()}
+
+<div class="line"></div>
+
+<pre>${items}</pre>
+
+<div class="line"></div>
+
+TOTAL : ₹${total}
+
+<div class="line"></div>
+
+<div class="center">
+Thank You Visit Again
+</div>
+
+</body>
+</html>
+
+`);
+
+win.document.close();
+win.print();
+
+}
+
 function addManual(id){
-  const n=document.getElementById(`n-${id}`).value;
-  const p=Number(document.getElementById(`p-${id}`).value);
-  const q=Number(document.getElementById(`q-${id}`).value);
-  if(!n||p<=0||q<=0)return;
 
-  db.collection("orders").doc(id).update({
-    [`items.${n}`]:{price:p,qty:q,addedBy:"billing"}
-  });
+const n=document.getElementById(`n-${id}`).value;
+const p=Number(document.getElementById(`p-${id}`).value);
+const q=Number(document.getElementById(`q-${id}`).value);
+
+if(!n||p<=0||q<=0)return;
+
+db.collection("orders").doc(id).update({
+[`items.${n}`]:{price:p,qty:q,addedBy:"billing"}
+});
+
 }
 
-/* REMOVE */
 function removeItem(id,n){
-  if(confirm("Remove item?")){
-    db.collection("orders").doc(id).update({
-      [`items.${n}`]:firebase.firestore.FieldValue.delete()
-    });
-  }
+
+if(confirm("Remove item?")){
+
+db.collection("orders").doc(id).update({
+[`items.${n}`]:firebase.firestore.FieldValue.delete()
+});
+
 }
 
-/* QR */
+}
+
 function generateQR(id,total){
-  const box=document.getElementById(`qr-${id}`);
-  box.innerHTML="";
-  box.style.display="block";
-  new QRCode(box,{
-    text:`upi://pay?pa=${OWNER_UPI}&pn=${OWNER_NAME}&am=${total}&cu=INR`,
-    width:120,height:120
-  });
+
+const box=document.getElementById(`qr-${id}`);
+box.innerHTML="";
+box.style.display="block";
+
+new QRCode(box,{
+text:`upi://pay?pa=${OWNER_UPI}&pn=${OWNER_NAME}&am=${total}&cu=INR`,
+width:120,height:120
+});
+
 }
 
-/* WHATSAPP */
 function sendWhatsApp(m,msg){
-  window.open(`https://wa.me/91${m}?text=${encodeURIComponent(msg)}`,"_blank");
+window.open(`https://wa.me/91${m}?text=${encodeURIComponent(msg)}`,"_blank");
 }
 
-/* DONE */
 function markPaid(id){
-  db.collection("orders").doc(id).update({
-    status:"PAID",
-    paymentMode:"UPI",
-    completedAt:firebase.firestore.FieldValue.serverTimestamp()
-  }).then(()=>{
-    const p=document.getElementById("successPopup");
-    p.style.display="flex";
-    setTimeout(()=>p.style.display="none",1800);
-  });
+
+db.collection("orders").doc(id).update({
+status:"PAID",
+paymentMode:"UPI",
+completedAt:firebase.firestore.FieldValue.serverTimestamp()
+}).then(()=>{
+const p=document.getElementById("successPopup");
+p.style.display="flex";
+setTimeout(()=>p.style.display="none",1800);
+});
+
 }
+
 </script>
 
 </body>
