@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Booking Successful – Amovi's Cafe</title>
+<title>Booking Successful – Brocode's Cafe</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -175,14 +175,14 @@ hr{
 <body>
 
 <header>
-  <h2>Amovi's Cafe & Fast Food</h2>
+  <h2>Brocode's Cafe & Fast Food</h2>
 </header>
 
 <!-- ================= BILL AREA ================= -->
 <div class="card" id="billArea">
 
   <div class="bill-heading">
-    <h1>Amovi’s Cafe & Fast Food</h1>
+    <h1>Brocode’s Cafe & Fast Food</h1>
     <p>Private Theatre • Celebrations • Memories</p>
   </div>
 
@@ -318,7 +318,7 @@ db.collection("bookings")
 async function downloadImage(){
   const canvas = await html2canvas(billArea,{scale:2});
   const a = document.createElement("a");
-  a.download = "Amovis_Cafe_Bill.png";
+  a.download = "Brocodes_Cafe_Bill.png";
   a.href = canvas.toDataURL("image/png");
   a.click();
 }
@@ -349,7 +349,7 @@ async function downloadPDF(){
     heightLeft -= pageH;
   }
 
-  pdf.save("Amovis_Cafe_Bill.pdf");
+  pdf.save("Brocodes_Cafe_Bill.pdf");
 }
 
 /* ================= HOME ================= */
@@ -359,4 +359,5 @@ function goHome(){
 </script>
 
 </body>
+
 </html>
